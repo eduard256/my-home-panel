@@ -30,9 +30,3 @@ build/
 # OS
 .DS_Store
 Thumbs.db
-
-# Node (for frontend)
-node_modules/
-.next/
-out/
-dist/
