@@ -1,0 +1,31 @@
+# Home Panel - Docker Compose Configuration
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: home-panel-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Database persistence
+      - ./data:/app/data
+      # Environment configuration (read-only)
+      - ./.env:/app/.env:ro
+    environment:
+      - TZ=Europe/Moscow
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - home-panel
+
+networks:
+  home-panel:
+    driver: bridge

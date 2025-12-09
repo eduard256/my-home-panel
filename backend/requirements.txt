@@ -1,0 +1,25 @@
+# FastAPI framework
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+
+# Pydantic for data validation
+pydantic>=2.10.0
+pydantic-settings>=2.6.0
+
+# JWT authentication
+python-jose[cryptography]>=3.3.0
+
+# Async HTTP client
+httpx>=0.28.0
+
+# Async SQLite
+aiosqlite>=0.20.0
+
+# Background task scheduler
+apscheduler>=3.10.4
+
+# Form data parsing (for auth)
+python-multipart>=0.0.17
+
+# SSE streaming
+sse-starlette>=2.1.0
