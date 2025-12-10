@@ -26,6 +26,19 @@ services:
     networks:
       - home-panel
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: home-panel-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - home-panel
+
 networks:
   home-panel:
     driver: bridge

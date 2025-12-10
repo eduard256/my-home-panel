@@ -115,6 +115,22 @@ class ProxmoxClient:
             f"/nodes/{self.node}/lxc/{vmid}/status/current"
         )
 
+    async def get_vm_rrddata(self, vmid: int, timeframe: str = "hour") -> list | None:
+        """Get VM RRD data for graphs."""
+        return await self._request(
+            "GET",
+            f"/nodes/{self.node}/qemu/{vmid}/rrddata",
+            params={"timeframe": timeframe}
+        )
+
+    async def get_container_rrddata(self, vmid: int, timeframe: str = "hour") -> list | None:
+        """Get container RRD data for graphs."""
+        return await self._request(
+            "GET",
+            f"/nodes/{self.node}/lxc/{vmid}/rrddata",
+            params={"timeframe": timeframe}
+        )
+
     async def vm_action(
         self,
         vmid: int,
@@ -216,6 +232,21 @@ class ProxmoxService:
                 disk_total = status_data.get("rootfs", {}).get("total", 1)
                 disk_percent = (disk_used / disk_total * 100) if disk_total > 0 else 0
 
+                # Get network traffic from rrddata (returns bytes/s)
+                network_in = 0
+                network_out = 0
+                try:
+                    rrd_data = await client.get_node_rrddata("hour")
+                    if rrd_data and len(rrd_data) > 0:
+                        # Get the latest data point with valid network values
+                        for point in reversed(rrd_data):
+                            if point.get("netin") is not None and point.get("netout") is not None:
+                                network_in = int(point.get("netin", 0) or 0)
+                                network_out = int(point.get("netout", 0) or 0)
+                                break
+                except Exception as e:
+                    logger.warning(f"Failed to get rrddata for {server_id}: {e}")
+
                 return ServerStatus(
                     id=server_id,
                     name=config.get("name", server_id),
@@ -230,8 +261,8 @@ class ProxmoxService:
                     disk_used=disk_used,
                     disk_total=disk_total,
                     disk_percent=round(disk_percent, 2),
-                    network_in=status_data.get("netin"),
-                    network_out=status_data.get("netout"),
+                    network_in=network_in,
+                    network_out=network_out,
                     load_average=status_data.get("loadavg"),
                     vms_running=vms_running,
                     vms_total=len(vms),
