@@ -145,32 +145,85 @@ export interface VMMetrics {
 // ============================================
 // Automation Types
 // ============================================
-export type HealthStatus = 'healthy' | 'degraded' | 'offline';
+export type HealthStatus = 'healthy' | 'degraded' | 'offline' | 'unhealthy';
 
+// Raw API response types (what backend returns)
+export interface AutomationAPIResponse {
+  container_name: string;
+  automation_name: string;
+  container: {
+    id: string;
+    status: string;
+    image: string;
+    created: string | null;
+    started: string | null;
+    uptime_seconds: number | null;
+  };
+  mqtt: {
+    status: {
+      status: string | null;
+      uptime: number | null;
+      triggers_count: number | null;
+      errors_count: number | null;
+      last_trigger: string | null;
+      timestamp: string | null;
+    } | null;
+    ready: {
+      status: string | null;
+      timestamp: string | null;
+      version: string | null;
+      description: string | null;
+    } | null;
+    config: unknown | null;
+    last_seen: string | null;
+  } | null;
+  health: {
+    overall: HealthStatus;
+    docker_running: boolean;
+    mqtt_responding: boolean;
+  };
+}
+
+export interface AutomationListAPIResponse {
+  automations: AutomationAPIResponse[];
+  total: number;
+  running: number;
+  stopped: number;
+}
+
+// Transformed types (what frontend components use)
 export interface AutomationHealth {
   overall: HealthStatus;
-  container: HealthStatus;
-  mqtt: HealthStatus;
+  docker_running: boolean;
+  mqtt_responding: boolean;
 }
 
 export interface AutomationContainer {
-  status: 'running' | 'stopped' | 'exited';
+  id: string;
+  status: 'running' | 'stopped' | 'exited' | string;
+  image: string;
   uptime_seconds: number;
-  cpu_percent: number;
-  memory_mb: number;
+}
+
+export interface AutomationMQTTStatus {
+  status: string;
+  uptime: number;
+  triggers_count: number;
+  errors_count: number;
+  last_trigger: string | null;
 }
 
 export interface AutomationMQTT {
-  status: {
-    connected: boolean;
-    triggers_count: number;
-  };
+  status: AutomationMQTTStatus | null;
+  description: string | null;
+  version: string | null;
 }
 
 export interface Automation {
   name: string;
-  description?: string;
-  room?: string;
+  container_name: string;
+  description: string | null;
+  room: string;
   health: AutomationHealth;
   container: AutomationContainer;
   mqtt: AutomationMQTT;
@@ -194,9 +247,10 @@ export interface AutomationMetrics {
 // ============================================
 // Device Types (Zigbee2MQTT)
 // ============================================
-export type DeviceType = 'switch' | 'dimmer' | 'sensor' | 'thermostat';
+export type DeviceType = 'switch' | 'dimmer' | 'sensor' | 'thermostat' | 'dual-switch' | 'rgb-strip' | 'curtain';
 
 export interface DeviceState {
+  // Common states
   state?: 'ON' | 'OFF';
   brightness?: number;
   temperature?: number;
@@ -204,6 +258,17 @@ export interface DeviceState {
   battery?: number;
   linkquality?: number;
   power?: number;
+
+  // Dual switch states
+  state_left?: 'ON' | 'OFF';
+  state_right?: 'ON' | 'OFF';
+
+  // RGB strip states
+  color?: { r: number; g: number; b: number };
+
+  // Curtain states
+  position?: number; // 0-100
+
   [key: string]: unknown;
 }
 
@@ -292,6 +357,7 @@ export interface AIChatState {
   selectedModel: AIModel;
   isStreaming: boolean;
   currentStreamContent: string;
+  inputPrompt: string;
   sendMessage: (category: CategoryId, message: string) => void;
   setModel: (model: AIModel) => void;
   clearHistory: (category: CategoryId) => void;
@@ -299,6 +365,8 @@ export interface AIChatState {
   appendStreamContent: (content: string) => void;
   finalizeMessage: (category: CategoryId, content: string) => void;
   setSessionId: (category: CategoryId, sessionId: string) => void;
+  setInputPrompt: (prompt: string) => void;
+  clearInputPrompt: () => void;
 }
 
 // ============================================

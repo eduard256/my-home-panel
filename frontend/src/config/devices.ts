@@ -15,68 +15,36 @@ import type { DeviceConfig } from '@/types';
  * Icons: Use Lucide icon names (https://lucide.dev/icons)
  */
 export const DEVICES_CONFIG: Record<string, DeviceConfig> = {
-  'main-eduard-bigwardrobe-switch': {
-    id: 'main-eduard-bigwardrobe-switch',
-    name: 'Big Wardrobe',
-    room: 'Main - Eduard',
-    type: 'switch',
-    topic: 'zigbee2mqtt/main-eduard-bigwardrobe-switch',
-    canvasPosition: { x: 120, y: 340 },
+  // Vadim's Room - Lighting
+  'main-vadim-room-light': {
+    id: 'main-vadim-room-light',
+    name: 'Room Light',
+    room: 'Vadim',
+    type: 'dual-switch',
+    topic: 'zigbee2mqtt/main-vadim-room-light',
+    canvasPosition: { x: 300, y: 100 }, // Top center (ceiling)
     icon: 'Lightbulb',
   },
-  'main-eduard-smallwardrobe-switch': {
-    id: 'main-eduard-smallwardrobe-switch',
-    name: 'Small Wardrobe',
-    room: 'Main - Eduard',
-    type: 'switch',
-    topic: 'zigbee2mqtt/main-eduard-smallwardrobe-switch',
-    canvasPosition: { x: 120, y: 440 },
+
+  'main-vadim-bed-yeelight': {
+    id: 'main-vadim-bed-yeelight',
+    name: 'Bed RGB Strip',
+    room: 'Vadim',
+    type: 'rgb-strip',
+    topic: 'automation_devices/main-vadim-bed-yeelight',
+    canvasPosition: { x: 200, y: 300 }, // Bottom left (bed area)
     icon: 'Lightbulb',
   },
-  'main-livingroom-ceiling-dimmer': {
-    id: 'main-livingroom-ceiling-dimmer',
-    name: 'Ceiling Light',
-    room: 'Living Room',
-    type: 'dimmer',
-    topic: 'zigbee2mqtt/main-livingroom-ceiling-dimmer',
-    canvasPosition: { x: 400, y: 200 },
-    icon: 'Sun',
-  },
-  'main-livingroom-temp-sensor': {
-    id: 'main-livingroom-temp-sensor',
-    name: 'Temperature',
-    room: 'Living Room',
-    type: 'sensor',
-    topic: 'zigbee2mqtt/main-livingroom-temp-sensor',
-    canvasPosition: { x: 400, y: 340 },
-    icon: 'Thermometer',
-  },
-  'main-kitchen-light-switch': {
-    id: 'main-kitchen-light-switch',
-    name: 'Kitchen Light',
-    room: 'Kitchen',
-    type: 'switch',
-    topic: 'zigbee2mqtt/main-kitchen-light-switch',
-    canvasPosition: { x: 680, y: 200 },
-    icon: 'Lightbulb',
-  },
-  'main-bedroom-ceiling-dimmer': {
-    id: 'main-bedroom-ceiling-dimmer',
-    name: 'Bedroom Light',
-    room: 'Bedroom',
-    type: 'dimmer',
-    topic: 'zigbee2mqtt/main-bedroom-ceiling-dimmer',
-    canvasPosition: { x: 680, y: 340 },
-    icon: 'Moon',
-  },
-  'main-bathroom-temp-sensor': {
-    id: 'main-bathroom-temp-sensor',
-    name: 'Bathroom Temp',
-    room: 'Bathroom',
-    type: 'sensor',
-    topic: 'zigbee2mqtt/main-bathroom-temp-sensor',
-    canvasPosition: { x: 680, y: 480 },
-    icon: 'Thermometer',
+
+  // Vadim's Room - Curtain
+  'main-vadim-window-curtain': {
+    id: 'main-vadim-window-curtain',
+    name: 'Window Curtain',
+    room: 'Vadim',
+    type: 'curtain',
+    topic: 'zigbee2mqtt/main-vadim-window-curtain',
+    canvasPosition: { x: 500, y: 200 }, // Right side (window)
+    icon: 'ChevronDown',
   },
 };
 
@@ -84,6 +52,7 @@ export const DEVICES_CONFIG: Record<string, DeviceConfig> = {
  * Room colors for canvas visualization
  */
 export const ROOM_COLORS: Record<string, string> = {
+  Vadim: 'rgba(99, 102, 241, 0.05)', // Indigo theme for Vadim's room
   'Main - Eduard': 'rgba(155, 135, 245, 0.1)',
   'Living Room': 'rgba(16, 185, 129, 0.1)',
   Kitchen: 'rgba(245, 158, 11, 0.1)',

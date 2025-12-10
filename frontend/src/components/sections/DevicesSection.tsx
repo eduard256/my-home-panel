@@ -18,6 +18,7 @@ import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { RoomPlanLayout } from '@/components/devices';
 import type { Device } from '@/types';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -242,10 +243,21 @@ function DeviceCard({ device }: { device: Device }) {
 
 /**
  * Room Section
+ * Renders different layouts based on room
  */
 function RoomSection({ room, devices }: { room: string; devices: Device[] }) {
   const bgColor = ROOM_COLORS[room] || ROOM_COLORS.Other;
 
+  // Use special layout for Vadim's room
+  if (room === 'Vadim') {
+    return (
+      <div className="mb-8 last:mb-0">
+        <RoomPlanLayout devices={devices} room={room} />
+      </div>
+    );
+  }
+
+  // Default grid layout for other rooms
   return (
     <div className="mb-8 last:mb-0">
       {/* Room Header */}
