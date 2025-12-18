@@ -48,6 +48,9 @@ class Settings(BaseSettings):
     # === Frigate ===
     FRIGATE_URL: str = "http://10.0.10.3:5000"
 
+    # === go2rtc (WebRTC streaming) ===
+    GO2RTC_URL: str = "http://10.0.10.3:1984"
+
     # === MQTT API ===
     MQTT_API_URL: str = "http://10.0.20.102:8081"
     MQTT_API_USER: str = "admin"

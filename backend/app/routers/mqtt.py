@@ -9,7 +9,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, status, Query
 from sse_starlette.sse import EventSourceResponse
 
-from app.auth import CurrentUser
+from app.auth import CurrentUser, CurrentUserOrToken
 from app.services.mqtt_api import get_mqtt_service
 from app.models.mqtt import (
     TopicsResponse,
@@ -79,7 +79,7 @@ async def publish_message(
 
 @router.get("/stream")
 async def stream_topics(
-    user: CurrentUser,
+    user: CurrentUserOrToken,
     topics: str | None = Query(
         default=None,
         description="Topic filter pattern (e.g., 'zigbee2mqtt/*', 'automation/*')"

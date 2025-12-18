@@ -9,7 +9,7 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException, status, Query
 from sse_starlette.sse import EventSourceResponse
 
-from app.auth import CurrentUser
+from app.auth import CurrentUser, CurrentUserOrToken
 from app.services.automation import get_automation_service
 from app.models.automation import (
     AutomationInfo,
@@ -71,7 +71,7 @@ async def get_all_stats(user: CurrentUser) -> list[AutomationStatsResponse]:
 @router.get("/{name:path}/logs")
 async def stream_automation_logs(
     name: str,
-    user: CurrentUser,
+    user: CurrentUserOrToken,
     lines: int = Query(default=100, ge=0, le=1000, description="Number of historical lines")
 ) -> EventSourceResponse:
     """
