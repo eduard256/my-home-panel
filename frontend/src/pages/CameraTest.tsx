@@ -36,14 +36,19 @@ export default function CameraTest() {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {CAMERAS.map((camera) => (
+          {CAMERAS.map((camera, index) => (
             <div key={camera.id} className="bg-card rounded-lg border shadow-sm overflow-hidden">
               <div className="p-3 border-b bg-muted/50">
                 <h3 className="font-semibold text-sm">{camera.name}</h3>
                 <p className="text-xs text-muted-foreground">{camera.id}</p>
               </div>
               <div className="aspect-video bg-black relative">
-                <WebRTCPlayer camera={camera.id} className="relative w-full h-full" />
+                {/* Priority based on index - first cameras load first */}
+                <WebRTCPlayer
+                  camera={camera.id}
+                  className="relative w-full h-full"
+                  priority={CAMERAS.length - index}
+                />
               </div>
             </div>
           ))}

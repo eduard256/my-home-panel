@@ -28,12 +28,14 @@ const GO2RTC_CAMERAS = [
 function CameraCell({ camera, index }: { camera: typeof GO2RTC_CAMERAS[0]; index: number }) {
   const { openDetail } = useNavigationStore();
 
-  // Priority: birdseye = 100, others by index (first = higher priority)
+  // Priority calculation:
+  // - Birdseye gets highest priority (100)
+  // - Other cameras get priority based on reverse index (first camera = highest)
   const priority = camera.large ? 100 : (GO2RTC_CAMERAS.length - index);
 
   return (
     <div className="relative group w-full h-full bg-black overflow-hidden">
-      {/* WebRTC Stream - Use sub stream for preview */}
+      {/* WebRTC Stream - Use priority-based connection management */}
       <WebRTCPlayer camera={camera.name} className="w-full h-full" priority={priority} />
 
       {/* Minimal Overlay - Only on Hover */}
@@ -126,7 +128,7 @@ export function CamerasSection() {
             className="relative overflow-hidden"
             style={camera.large ? { gridColumn: 'span 2', gridRow: 'span 2' } : undefined}
           >
-            <CameraCell camera={camera} />
+            <CameraCell camera={camera} index={index} />
           </motion.div>
         ))}
       </div>

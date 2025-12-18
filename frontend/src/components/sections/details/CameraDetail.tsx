@@ -110,7 +110,8 @@ export function CameraDetail({ name }: { name: string }) {
 
       {/* Main Player - Full Width */}
       <div className="flex-1 bg-black relative">
-        <WebRTCPlayer camera={name} className="w-full h-full" />
+        {/* Detail view gets maximum priority (1000) for immediate loading */}
+        <WebRTCPlayer camera={name} className="w-full h-full" priority={1000} />
 
         {/* Live Indicator */}
         {camera.status === 'online' && (
