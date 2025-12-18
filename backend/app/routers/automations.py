@@ -51,83 +51,6 @@ async def get_automations(user: CurrentUser) -> AutomationListResponse:
     return await service.get_automations()
 
 
-@router.get("/{name}", response_model=AutomationInfo)
-async def get_automation(
-    name: str,
-    user: CurrentUser
-) -> AutomationInfo:
-    """
-    Get single automation by name.
-    Name can be either automation_name or container_name.
-    """
-    service = await get_automation_service()
-    automation = await service.get_automation(name)
-
-    if automation is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Automation '{name}' not found"
-        )
-
-    return automation
-
-
-@router.post("/{name}/{action}", response_model=AutomationActionResponse)
-async def control_automation(
-    name: str,
-    action: Literal["start", "stop", "restart"],
-    user: CurrentUser
-) -> AutomationActionResponse:
-    """
-    Control automation container.
-
-    Actions:
-    - start: Start stopped container
-    - stop: Stop running container
-    - restart: Restart container
-
-    Note: The 'monitor' container cannot be controlled via API.
-    """
-    service = await get_automation_service()
-    result = await service.control_automation(name, action)
-
-    if not result.success:
-        # Check if it's a "cannot restart monitor" error
-        if "монитор" in result.message.lower() or "monitor" in result.message.lower():
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=result.message
-            )
-
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=result.message
-        )
-
-    return result
-
-
-@router.get("/{name}/stats", response_model=AutomationStatsResponse)
-async def get_automation_stats(
-    name: str,
-    user: CurrentUser
-) -> AutomationStatsResponse:
-    """
-    Get resource stats for an automation container.
-    Includes CPU, memory, network, and disk I/O.
-    """
-    service = await get_automation_service()
-    stats = await service.get_stats(name)
-
-    if stats is None or isinstance(stats, list):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Stats not available for '{name}'"
-        )
-
-    return stats
-
-
 @router.get("/stats/all", response_model=list[AutomationStatsResponse])
 async def get_all_stats(user: CurrentUser) -> list[AutomationStatsResponse]:
     """
@@ -145,7 +68,7 @@ async def get_all_stats(user: CurrentUser) -> list[AutomationStatsResponse]:
     return stats
 
 
-@router.get("/{name}/logs")
+@router.get("/{name:path}/logs")
 async def stream_automation_logs(
     name: str,
     user: CurrentUser,
@@ -178,3 +101,80 @@ async def stream_automation_logs(
             }
 
     return EventSourceResponse(event_generator())
+
+
+@router.get("/{name}/stats", response_model=AutomationStatsResponse)
+async def get_automation_stats(
+    name: str,
+    user: CurrentUser
+) -> AutomationStatsResponse:
+    """
+    Get resource stats for an automation container.
+    Includes CPU, memory, network, and disk I/O.
+    """
+    service = await get_automation_service()
+    stats = await service.get_stats(name)
+
+    if stats is None or isinstance(stats, list):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Stats not available for '{name}'"
+        )
+
+    return stats
+
+
+@router.get("/{name:path}", response_model=AutomationInfo)
+async def get_automation(
+    name: str,
+    user: CurrentUser
+) -> AutomationInfo:
+    """
+    Get single automation by name.
+    Name can be either automation_name or container_name.
+    """
+    service = await get_automation_service()
+    automation = await service.get_automation(name)
+
+    if automation is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Automation '{name}' not found"
+        )
+
+    return automation
+
+
+@router.post("/{name:path}/{action}", response_model=AutomationActionResponse)
+async def control_automation(
+    name: str,
+    action: Literal["start", "stop", "restart"],
+    user: CurrentUser
+) -> AutomationActionResponse:
+    """
+    Control automation container.
+
+    Actions:
+    - start: Start stopped container
+    - stop: Stop running container
+    - restart: Restart container
+
+    Note: The 'monitor' container cannot be controlled via API.
+    """
+    service = await get_automation_service()
+    result = await service.control_automation(name, action)
+
+    if not result.success:
+        # Check if it's a "cannot restart monitor" error
+        if "монитор" in result.message.lower() or "monitor" in result.message.lower():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=result.message
+            )
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=result.message
+        )
+
+    return result

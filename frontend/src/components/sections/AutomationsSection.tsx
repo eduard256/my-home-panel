@@ -1,13 +1,12 @@
 import { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, AlertCircle, CheckCircle, MinusCircle, Container } from 'lucide-react';
+import { Zap, CheckCircle, AlertCircle, MinusCircle, Container } from 'lucide-react';
 import { cn, formatUptime } from '@/lib/utils';
-import { useAutomations, useAutomationMetrics } from '@/hooks';
+import { useAutomations } from '@/hooks';
 import { useNavigationStore } from '@/stores';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Heatmap } from '@/components/charts';
 import type { Automation, HealthStatus } from '@/types';
 
 /**
@@ -20,6 +19,9 @@ function getHealthVariant(status: HealthStatus): 'success' | 'warning' | 'destru
     case 'degraded':
       return 'warning';
     case 'offline':
+    case 'unhealthy':
+      return 'destructive';
+    default:
       return 'destructive';
   }
 }
@@ -34,6 +36,8 @@ function HealthIcon({ status }: { status: HealthStatus }) {
     case 'degraded':
       return <AlertCircle className="h-4 w-4 text-warning" />;
     case 'offline':
+    case 'unhealthy':
+    default:
       return <MinusCircle className="h-4 w-4 text-destructive" />;
   }
 }
@@ -43,41 +47,28 @@ function HealthIcon({ status }: { status: HealthStatus }) {
  */
 function AutomationCard({ automation }: { automation: Automation }) {
   const { openDetail } = useNavigationStore();
-  const { data: metrics } = useAutomationMetrics(automation.name, '24h');
 
   const handleClick = () => {
-    openDetail('automations', automation.name);
+    openDetail('automations', automation.container_name);
   };
-
-  // Generate hourly trigger data for heatmap
-  const hourlyTriggers = useMemo(() => {
-    if (!metrics?.triggers) {
-      return Array(24).fill(0);
-    }
-    // Assuming metrics has hourly data
-    return metrics.triggers.slice(-24);
-  }, [metrics]);
-
-  const triggersToday = automation.mqtt?.status?.triggers_count || 0;
-  const errorsCount = automation.errors_count || 0;
 
   return (
     <motion.div
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.99 }}
       onClick={handleClick}
-      className="card p-5 cursor-pointer hover:border-white/10 transition-all"
+      className="card p-4 cursor-pointer hover:border-white/10 transition-all"
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-500/20">
             <Zap className="h-5 w-5 text-yellow-400" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-white">{automation.name}</h3>
+            <h3 className="text-base font-semibold text-white">{automation.name}</h3>
             {automation.description && (
-              <p className="text-tiny text-muted">{automation.description}</p>
+              <p className="text-tiny text-muted line-clamp-2">{automation.description}</p>
             )}
           </div>
         </div>
@@ -88,28 +79,8 @@ function AutomationCard({ automation }: { automation: Automation }) {
         </Badge>
       </div>
 
-      {/* Stats */}
-      <div className="flex items-center gap-6 mb-4">
-        <div>
-          <span className="text-tiny text-muted block">Triggers today</span>
-          <span className="text-xl font-bold text-white">{triggersToday}</span>
-        </div>
-        {errorsCount > 0 && (
-          <div>
-            <span className="text-tiny text-muted block">Errors</span>
-            <span className="text-xl font-bold text-destructive">{errorsCount}</span>
-          </div>
-        )}
-      </div>
-
-      {/* 24-hour Heatmap */}
-      <div className="mb-4">
-        <span className="text-tiny text-muted block mb-2">Activity (24h)</span>
-        <Heatmap data={hourlyTriggers} />
-      </div>
-
       {/* Footer */}
-      <div className="flex items-center justify-between text-sm border-t border-white/5 pt-4">
+      <div className="flex items-center justify-between text-sm border-t border-white/5 pt-3">
         <div className="flex items-center gap-2">
           <Container className="h-4 w-4 text-muted" />
           <span
@@ -133,31 +104,19 @@ function AutomationCard({ automation }: { automation: Automation }) {
  */
 function AutomationCardSkeleton() {
   return (
-    <div className="card p-5">
-      <div className="flex items-start justify-between mb-4">
+    <div className="card p-4">
+      <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
           <Skeleton className="h-10 w-10 rounded-xl" />
           <div>
             <Skeleton className="h-5 w-40 mb-1" />
-            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-3 w-32" />
           </div>
         </div>
         <Skeleton className="h-6 w-20 rounded-full" />
       </div>
 
-      <div className="flex items-center gap-6 mb-4">
-        <div>
-          <Skeleton className="h-3 w-20 mb-1" />
-          <Skeleton className="h-6 w-12" />
-        </div>
-      </div>
-
-      <div className="mb-4">
-        <Skeleton className="h-3 w-16 mb-2" />
-        <Skeleton className="h-10 w-full rounded-lg" />
-      </div>
-
-      <div className="flex items-center justify-between border-t border-white/5 pt-4">
+      <div className="flex items-center justify-between border-t border-white/5 pt-3">
         <Skeleton className="h-4 w-20" />
         <Skeleton className="h-4 w-24" />
       </div>

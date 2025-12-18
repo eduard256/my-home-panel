@@ -99,10 +99,10 @@ export const endpoints = {
   // Automations
   automations: {
     list: '/api/automations',
-    detail: (name: string) => `/api/automations/${name}`,
-    metrics: (name: string) => `/api/metrics/automation/${name}`,
-    logs: (name: string) => `/api/automations/${name}/logs`,
-    action: (name: string, action: string) => `/api/automations/${name}/${action}`,
+    detail: (name: string) => `/api/automations/${encodeURIComponent(name)}`,
+    metrics: (name: string) => `/api/metrics/automation/${encodeURIComponent(name)}`,
+    logs: (name: string) => `/api/automations/${encodeURIComponent(name)}/logs`,
+    action: (name: string, action: string) => `/api/automations/${encodeURIComponent(name)}/${action}`,
   },
 
   // MQTT / Devices

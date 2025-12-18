@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import ReactECharts from 'echarts-for-react';
-import type { EChartsOption } from 'echarts';
 import type { EChartsReactProps } from 'echarts-for-react';
 
 /**

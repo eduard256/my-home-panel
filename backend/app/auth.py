@@ -121,6 +121,40 @@ async def get_current_user(
 CurrentUser = Annotated[dict, Depends(get_current_user)]
 
 
+async def get_current_user_or_token(
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
+    token: str | None = None
+) -> dict:
+    """
+    FastAPI dependency that supports both Authorization header and query token.
+    Useful for SSE endpoints where EventSource doesn't support custom headers.
+
+    Raises:
+        HTTPException: If no valid token provided
+    """
+    # Try Authorization header first
+    if credentials is not None:
+        payload = verify_jwt(credentials.credentials)
+        if payload is not None:
+            return payload
+
+    # Fall back to query parameter token
+    if token is not None:
+        payload = verify_jwt(token)
+        if payload is not None:
+            return payload
+
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Authorization required",
+        headers={"WWW-Authenticate": "Bearer"}
+    )
+
+
+# Type alias for SSE endpoints that need query token support
+CurrentUserOrToken = Annotated[dict, Depends(get_current_user_or_token)]
+
+
 def optional_auth(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)]
 ) -> dict | None:

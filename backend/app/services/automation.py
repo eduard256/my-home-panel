@@ -81,12 +81,53 @@ class AutomationClient:
         return await self._request("GET", "/api/automations")
 
     async def get_automation(self, name: str) -> dict | None:
-        """Get single automation by name."""
-        return await self._request("GET", f"/api/automations/{name}")
+        """
+        Get single automation by name.
+        Name can be either automation_name or container_name.
+        If name contains '/', try to get by automation_name first,
+        then fall back to converting it to container_name format.
+        """
+        logger.info(f"get_automation called with name: {name}")
+
+        # Try direct request first
+        result = await self._request("GET", f"/api/automations/{name}")
+        if result is not None:
+            logger.info(f"Direct request succeeded for: {name}")
+            return result
+
+        logger.info(f"Direct request failed for: {name}, result was None")
+
+        # If name contains '/' (automation_name format), convert to container_name
+        # Format: "main-street/windows-light" -> "automation-main-street-windows-light"
+        if '/' in name:
+            container_name = f"automation-{name.replace('/', '-')}"
+            logger.info(f"Trying fallback with container_name: {container_name}")
+            result = await self._request("GET", f"/api/automations/{container_name}")
+            if result is not None:
+                logger.info(f"Fallback request succeeded for: {container_name}")
+                return result
+            logger.info(f"Fallback request also failed for: {container_name}")
+
+        return None
 
     async def control_automation(self, name: str, action: str) -> dict | None:
-        """Control automation (start/stop/restart)."""
-        return await self._request("POST", f"/api/control/{name}/{action}")
+        """
+        Control automation (start/stop/restart).
+        Name can be either automation_name or container_name.
+        """
+        # Try direct request first
+        result = await self._request("POST", f"/api/control/{name}/{action}")
+        if result is not None:
+            return result
+
+        # If name contains '/' (automation_name format), convert to container_name
+        if '/' in name:
+            container_name = f"automation-{name.replace('/', '-')}"
+            result = await self._request("POST", f"/api/control/{container_name}/{action}")
+            if result is not None:
+                return result
+
+        return None
 
     async def get_stats(self, container_name: str | None = None) -> dict | None:
         """Get container stats."""
@@ -368,12 +409,18 @@ class AutomationService:
     ) -> AsyncGenerator[str, None]:
         """
         Stream logs from container via SSE.
+        Name can be either automation_name or container_name.
         """
         if self._client is None:
             return
 
+        # If name contains '/' (automation_name format), convert to container_name
+        name_to_use = container_name
+        if '/' in container_name:
+            name_to_use = f"automation-{container_name.replace('/', '-')}"
+
         settings = get_settings()
-        url = f"{settings.AUTOMATION_API_URL}/api/logs/{container_name}"
+        url = f"{settings.AUTOMATION_API_URL}/api/logs/{name_to_use}"
         params = {"lines": lines}
 
         try:

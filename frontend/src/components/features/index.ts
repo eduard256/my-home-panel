@@ -1,2 +1,2 @@
 export { LoginScreen } from './LoginScreen';
-export { AIChatPanel } from './AIChatPanel';
+export { AIChatPanel } from '../ai-chat';

@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import type { Device } from '@/types';
-import { DualSwitchCard } from './DualSwitchCard';
 import { RGBStripCard } from './RGBStripCard';
 import { CurtainCard } from './CurtainCard';
 
@@ -36,8 +35,6 @@ export function RoomPlanLayout({ devices, room }: RoomPlanLayoutProps) {
   // Render device card based on type
   const renderDeviceCard = (device: Device) => {
     switch (device.type) {
-      case 'dual-switch':
-        return <DualSwitchCard key={device.id} device={device} />;
       case 'rgb-strip':
         return <RGBStripCard key={device.id} device={device} />;
       case 'curtain':

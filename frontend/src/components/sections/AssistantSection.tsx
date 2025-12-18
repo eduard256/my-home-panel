@@ -16,7 +16,7 @@ import { useNavigationStore, useAIChatStore } from '@/stores';
 import { ASSISTANT_TEMPLATES } from '@/config/aiContexts';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import type { ChatMessage } from '@/types';
+import type { UserMessage } from '@/types/ai-chat';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Server,
@@ -95,18 +95,18 @@ function HistoryItem({
  */
 export function AssistantSection() {
   const { openAI } = useNavigationStore();
-  const { chats, clearHistory } = useAIChatStore();
+  const { sessions, clearSession } = useAIChatStore();
 
   // Get assistant chat history
-  const assistantChat = chats.assistant;
-  const messages = assistantChat?.messages || [];
+  const assistantSession = sessions.assistant;
+  const messages = assistantSession?.messages || [];
 
-  // Group messages by date
+  // Group user messages by date
   const groupedHistory = useMemo(() => {
-    const userMessages = messages.filter((m: ChatMessage) => m.role === 'user');
-    const groups: Record<string, ChatMessage[]> = {};
+    const userMessages = messages.filter((m): m is UserMessage => m.role === 'user');
+    const groups: Record<string, UserMessage[]> = {};
 
-    userMessages.forEach((msg: ChatMessage) => {
+    userMessages.forEach((msg) => {
       const group = formatDateGroup(msg.timestamp);
       if (!groups[group]) {
         groups[group] = [];
@@ -130,7 +130,7 @@ export function AssistantSection() {
   };
 
   const handleNewChat = () => {
-    clearHistory('assistant');
+    clearSession('assistant');
     openAI();
   };
 
@@ -188,7 +188,7 @@ export function AssistantSection() {
                     <div key={date}>
                       <h4 className="text-xs text-muted mb-2">{date}</h4>
                       <div className="card p-2 space-y-1">
-                        {msgs.slice(-3).map((msg: ChatMessage) => (
+                        {msgs.slice(-3).map((msg) => (
                           <HistoryItem
                             key={msg.id}
                             message={msg.content}

@@ -15,44 +15,23 @@ import type { DeviceConfig } from '@/types';
  * Icons: Use Lucide icon names (https://lucide.dev/icons)
  */
 export const DEVICES_CONFIG: Record<string, DeviceConfig> = {
-  // Vadim's Room - Lighting
-  'main-vadim-room-light': {
-    id: 'main-vadim-room-light',
-    name: 'Room Light',
-    room: 'Vadim',
-    type: 'dual-switch',
-    topic: 'zigbee2mqtt/main-vadim-room-light',
-    canvasPosition: { x: 300, y: 100 }, // Top center (ceiling)
-    icon: 'Lightbulb',
-  },
-
-  'main-vadim-bed-yeelight': {
-    id: 'main-vadim-bed-yeelight',
-    name: 'Bed RGB Strip',
-    room: 'Vadim',
-    type: 'rgb-strip',
-    topic: 'automation_devices/main-vadim-bed-yeelight',
-    canvasPosition: { x: 200, y: 300 }, // Bottom left (bed area)
-    icon: 'Lightbulb',
-  },
-
-  // Vadim's Room - Curtain
-  'main-vadim-window-curtain': {
-    id: 'main-vadim-window-curtain',
-    name: 'Window Curtain',
-    room: 'Vadim',
-    type: 'curtain',
-    topic: 'zigbee2mqtt/main-vadim-window-curtain',
-    canvasPosition: { x: 500, y: 200 }, // Right side (window)
-    icon: 'ChevronDown',
-  },
+  // Add your real Zigbee2MQTT devices here
+  // Example:
+  // 'device-id': {
+  //   id: 'device-id',
+  //   name: 'Device Name',
+  //   room: 'Room Name',
+  //   type: 'switch', // or 'dimmer', 'sensor', 'thermostat'
+  //   topic: 'zigbee2mqtt/device-id',
+  //   canvasPosition: { x: 100, y: 100 },
+  //   icon: 'Lightbulb', // Lucide icon name
+  // },
 };
 
 /**
  * Room colors for canvas visualization
  */
 export const ROOM_COLORS: Record<string, string> = {
-  Vadim: 'rgba(99, 102, 241, 0.05)', // Indigo theme for Vadim's room
   'Main - Eduard': 'rgba(155, 135, 245, 0.1)',
   'Living Room': 'rgba(16, 185, 129, 0.1)',
   Kitchen: 'rgba(245, 158, 11, 0.1)',

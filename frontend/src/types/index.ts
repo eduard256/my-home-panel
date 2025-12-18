@@ -357,7 +357,6 @@ export interface AIChatState {
   selectedModel: AIModel;
   isStreaming: boolean;
   currentStreamContent: string;
-  inputPrompt: string;
   sendMessage: (category: CategoryId, message: string) => void;
   setModel: (model: AIModel) => void;
   clearHistory: (category: CategoryId) => void;
@@ -365,8 +364,6 @@ export interface AIChatState {
   appendStreamContent: (content: string) => void;
   finalizeMessage: (category: CategoryId, content: string) => void;
   setSessionId: (category: CategoryId, sessionId: string) => void;
-  setInputPrompt: (prompt: string) => void;
-  clearInputPrompt: () => void;
 }
 
 // ============================================

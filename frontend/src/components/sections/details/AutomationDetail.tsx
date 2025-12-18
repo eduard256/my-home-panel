@@ -11,24 +11,14 @@ import {
   AlertCircle,
   MinusCircle,
   Container,
-  Activity,
-  Clock,
 } from 'lucide-react';
-import { cn, formatRelativeTime } from '@/lib/utils';
-import { useAutomation, useAutomationMetrics, useAutomationAction, useAutomationLogs } from '@/hooks';
+import { cn, formatUptime, formatRelativeTime } from '@/lib/utils';
+import { useAutomation, useAutomationAction, useAutomationLogs } from '@/hooks';
 import { useNavigationStore } from '@/stores';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { BarChart, LineChart, Sparkline } from '@/components/charts';
-import type { TimeRange, HealthStatus } from '@/types';
-
-const TIME_RANGES: { value: TimeRange; label: string }[] = [
-  { value: '1h', label: '1h' },
-  { value: '6h', label: '6h' },
-  { value: '24h', label: '24h' },
-  { value: '7d', label: '7d' },
-];
+import type { HealthStatus } from '@/types';
 
 /**
  * Health Icon component
@@ -40,6 +30,8 @@ function HealthIcon({ status }: { status: HealthStatus }) {
     case 'degraded':
       return <AlertCircle className="h-5 w-5 text-warning" />;
     case 'offline':
+    case 'unhealthy':
+    default:
       return <MinusCircle className="h-5 w-5 text-destructive" />;
   }
 }
@@ -63,12 +55,10 @@ function StatusBadge({ status, label }: { status: HealthStatus; label: string })
  * AutomationDetail - Detailed view of an automation
  */
 export function AutomationDetail({ name }: { name: string }) {
-  const [timeRange, setTimeRange] = useState<TimeRange>('24h');
   const [showLogs, setShowLogs] = useState(false);
 
   const { closeBlock3 } = useNavigationStore();
   const { data: automation, isLoading } = useAutomation(name);
-  const { data: metrics } = useAutomationMetrics(name, timeRange);
   const { data: logs } = useAutomationLogs(name, showLogs);
   const { mutate: automationAction, isPending: isActionPending } = useAutomationAction();
 
@@ -91,7 +81,6 @@ export function AutomationDetail({ name }: { name: string }) {
             <Skeleton className="h-20 w-full rounded-xl" />
             <Skeleton className="h-20 w-full rounded-xl" />
           </div>
-          <Skeleton className="h-[200px] w-full rounded-xl" />
           <Skeleton className="h-[150px] w-full rounded-xl" />
         </div>
       </div>
@@ -138,113 +127,57 @@ export function AutomationDetail({ name }: { name: string }) {
           <div className="grid grid-cols-3 gap-3">
             <StatusBadge status={automation.health.overall} label="Overall" />
             <StatusBadge
-              status={isRunning ? 'healthy' : 'offline'}
+              status={automation.health.docker_running ? 'healthy' : 'offline'}
               label="Container"
             />
             <StatusBadge
-              status={automation.mqtt.status.connected ? 'healthy' : 'offline'}
+              status={automation.health.mqtt_responding ? 'healthy' : 'offline'}
               label="MQTT"
             />
           </div>
 
-          {/* Time Range Selector */}
-          <div className="flex gap-2">
-            {TIME_RANGES.map((range) => (
-              <Button
-                key={range.value}
-                variant={timeRange === range.value ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setTimeRange(range.value)}
-                className="h-8 px-3"
-              >
-                {range.label}
-              </Button>
-            ))}
-          </div>
-
-          {/* Triggers Chart */}
-          <div className="card p-4">
-            <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-              <Activity className="h-4 w-4" />
-              Triggers
-            </h3>
-            <BarChart
-              data={metrics?.triggers || []}
-              labels={metrics?.timestamps?.map((t) => {
-                const date = new Date(t);
-                return `${date.getHours()}:00`;
-              })}
-              color="#9b87f5"
-              height={200}
-            />
-          </div>
-
-          {/* Errors Chart */}
-          {metrics?.errors && metrics.errors.some((e) => e > 0) && (
-            <div className="card p-4">
-              <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 text-destructive" />
-                Errors
-              </h3>
-              <LineChart
-                series={[
-                  {
-                    name: 'Errors',
-                    data: metrics.errors,
-                    color: '#ef4444',
-                  },
-                ]}
-                timestamps={metrics.timestamps}
-                height={150}
-                yAxisFormat={(v) => v.toString()}
-              />
-            </div>
-          )}
-
-          {/* Recent Triggers */}
-          {automation.recent_triggers && automation.recent_triggers.length > 0 && (
-            <div className="card p-4">
-              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                Recent Triggers
-              </h3>
-              <div className="space-y-2">
-                {automation.recent_triggers.slice(0, 10).map((trigger, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between py-2 border-b border-white/5 last:border-0"
-                  >
-                    <span className="text-sm text-white">{trigger.description}</span>
-                    <span className="text-tiny text-muted">
-                      {formatRelativeTime(trigger.timestamp)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Container Metrics */}
+          {/* Container Info */}
           <div className="card p-4">
             <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
               <Container className="h-4 w-4" />
-              Container
+              Container Info
             </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <span className="text-tiny text-muted block mb-1">CPU</span>
-                <Sparkline
-                  data={[automation.container.cpu_percent]}
-                  color="#9b87f5"
-                  height={40}
-                />
-              </div>
-              <div className="text-right">
-                <span className="text-tiny text-muted block">Memory</span>
-                <span className="text-lg font-semibold text-white">
-                  {automation.container.memory_mb} MB
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted">Status</span>
+                <span className={cn(
+                  'font-medium',
+                  isRunning ? 'text-success' : 'text-destructive'
+                )}>
+                  {automation.container.status}
                 </span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-muted">Uptime</span>
+                <span className="text-white">
+                  {formatUptime(automation.container.uptime_seconds)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted">Image</span>
+                <span className="text-white font-mono text-xs truncate max-w-[200px]" title={automation.container.image}>
+                  {automation.container.image.split(':')[0].split('/').pop()}
+                </span>
+              </div>
+              {automation.mqtt?.version && (
+                <div className="flex justify-between">
+                  <span className="text-muted">Version</span>
+                  <span className="text-white">{automation.mqtt.version}</span>
+                </div>
+              )}
+              {automation.mqtt?.status?.last_trigger && (
+                <div className="flex justify-between">
+                  <span className="text-muted">Last Trigger</span>
+                  <span className="text-white">
+                    {formatRelativeTime(automation.mqtt.status.last_trigger)}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 

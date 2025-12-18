@@ -8,7 +8,7 @@ import { Block, blockVariants, containerVariants } from './Block';
 import { NavigationMenu } from './NavigationMenu';
 import { ContentSection } from '@/components/sections/ContentSection';
 import { DetailPanel } from '@/components/sections/DetailPanel';
-import { AIChatPanel } from '@/components/features/AIChatPanel';
+import { AIChatPanel } from '@/components/ai-chat';
 import { Button } from '@/components/ui/button';
 import { getCategoryById } from '@/config/categories';
 
