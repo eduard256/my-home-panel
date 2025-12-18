@@ -193,7 +193,12 @@ export const WebSearchToolCard = memo(function WebSearchToolCard({
   const hasResult = tool.status === 'completed' && tool.result;
 
   // Parse results (they come as text with URLs)
-  const resultText = tool.result?.results || '';
+  // Handle both structured result {results: string} and raw content {content: string}
+  const resultText = typeof tool.result === 'object' && tool.result !== null
+    ? ('results' in tool.result ? String(tool.result.results || '') :
+       'content' in tool.result ? String(tool.result.content || '') :
+       'raw' in tool.result ? String(tool.result.raw || '') : '')
+    : '';
   const maxLength = 500;
   const displayText = showAll ? resultText : resultText.slice(0, maxLength);
 
@@ -246,7 +251,11 @@ export const WebFetchToolCard = memo(function WebFetchToolCard({
     hostname = tool.input.url;
   }
 
-  const content = tool.result?.content || '';
+  // Handle both structured result {content: string} and raw content {raw: string}
+  const content = typeof tool.result === 'object' && tool.result !== null
+    ? ('content' in tool.result ? String(tool.result.content || '') :
+       'raw' in tool.result ? String(tool.result.raw || '') : '')
+    : '';
   const maxLength = 400;
   const displayContent = showAll ? content : content.slice(0, maxLength);
 

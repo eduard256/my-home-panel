@@ -7,9 +7,9 @@ import logging
 
 import httpx
 from fastapi import APIRouter, HTTPException, status, Query, Response, Request, WebSocket, WebSocketDisconnect
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
 
-from app.auth import CurrentUser, CurrentUserOrToken, verify_jwt
+from app.auth import CurrentUser, CurrentUserOrToken, OptionalUser, verify_jwt
 from app.config import get_settings
 from app.services.frigate import get_frigate_service
 from app.models.frigate import (
@@ -162,25 +162,70 @@ async def get_stats(user: CurrentUser) -> FrigateStats:
 # ============================================================================
 
 
+@router.get("/go2rtc/stream.html")
+async def get_custom_stream_html(
+    user: OptionalUser
+) -> FileResponse:
+    """
+    Serve custom stream.html that passes token to WebSocket.
+
+    This replaces the original go2rtc stream.html to add token support.
+    """
+    import os
+    static_dir = os.path.join(os.path.dirname(__file__), '..', 'static')
+    stream_html = os.path.join(static_dir, 'stream.html')
+
+    if not os.path.exists(stream_html):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="stream.html not found"
+        )
+
+    return FileResponse(
+        stream_html,
+        media_type="text/html",
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
+    )
+
+
 @router.api_route("/go2rtc/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
 async def proxy_go2rtc_http(
     path: str,
     request: Request,
-    user: CurrentUserOrToken
+    user: OptionalUser
 ) -> Response:
     """
-    Proxy all HTTP requests to go2rtc with authentication.
+    Proxy all HTTP requests to go2rtc with optional authentication.
+
+    Static files (.js, .css, .html, .ico, .png, .jpg, .svg) are allowed without auth
+    for iframe embedding. All other requests (API endpoints) require authentication.
 
     This allows frontend to access go2rtc stream.html and other endpoints
     through our authenticated backend.
 
     Examples:
-    - /api/frigate/go2rtc/stream.html?src=camera_name
-    - /api/frigate/go2rtc/api/streams
-    - /api/frigate/go2rtc/api/webrtc?src=camera_name
+    - /api/frigate/go2rtc/stream.html?src=camera_name (no auth needed)
+    - /api/frigate/go2rtc/video-stream.js (no auth needed)
+    - /api/frigate/go2rtc/api/streams?token=JWT (auth required)
+    - /api/frigate/go2rtc/api/webrtc?src=camera_name&token=JWT (auth required)
 
     Auth: Supports both Bearer header and ?token= query parameter
     """
+    # Static file extensions that don't require auth
+    static_extensions = ('.js', '.css', '.html', '.ico', '.png', '.jpg', '.jpeg', '.svg', '.woff', '.woff2', '.ttf', '.eot')
+    is_static_file = path.lower().endswith(static_extensions)
+
+    # Require auth for non-static files
+    if not is_static_file and user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required for API endpoints"
+        )
+
     settings = get_settings()
     go2rtc_url = f"{settings.GO2RTC_URL}/{path}"
 
@@ -265,9 +310,15 @@ async def proxy_go2rtc_websocket(
 
     logger.info(f"Proxying WebSocket to go2rtc: {go2rtc_ws_url}")
 
-    # Connect to go2rtc WebSocket
+    # Connect to go2rtc WebSocket with optimized settings
     try:
-        async with websockets.connect(go2rtc_ws_url) as upstream:
+        # Disable compression and set large max_size for video streams
+        async with websockets.connect(
+            go2rtc_ws_url,
+            compression=None,  # Disable compression for lower latency
+            max_size=10 * 1024 * 1024,  # 10MB max message size for video frames
+            ping_interval=None,  # Disable ping/pong for lower overhead
+        ) as upstream:
             # Create tasks for bidirectional proxying
             async def forward_to_go2rtc():
                 """Forward messages from client to go2rtc"""
@@ -279,9 +330,9 @@ async def proxy_go2rtc_websocket(
                         elif 'bytes' in data:
                             await upstream.send(data['bytes'])
                 except WebSocketDisconnect:
-                    logger.info("Client disconnected")
+                    logger.debug("Client disconnected")
                 except Exception as e:
-                    logger.error(f"Error forwarding to go2rtc: {e}")
+                    logger.debug(f"Error forwarding to go2rtc: {e}")
 
             async def forward_from_go2rtc():
                 """Forward messages from go2rtc to client"""
@@ -292,7 +343,7 @@ async def proxy_go2rtc_websocket(
                         elif isinstance(message, bytes):
                             await websocket.send_bytes(message)
                 except Exception as e:
-                    logger.error(f"Error forwarding from go2rtc: {e}")
+                    logger.debug(f"Error forwarding from go2rtc: {e}")
 
             # Run both forwarding tasks concurrently
             await asyncio.gather(

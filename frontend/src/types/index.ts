@@ -247,7 +247,7 @@ export interface AutomationMetrics {
 // ============================================
 // Device Types (Zigbee2MQTT)
 // ============================================
-export type DeviceType = 'switch' | 'dimmer' | 'sensor' | 'thermostat' | 'dual-switch' | 'rgb-strip' | 'curtain';
+export type DeviceType = 'switch' | 'dimmer' | 'sensor' | 'thermostat';
 
 export interface DeviceState {
   // Common states
@@ -258,16 +258,6 @@ export interface DeviceState {
   battery?: number;
   linkquality?: number;
   power?: number;
-
-  // Dual switch states
-  state_left?: 'ON' | 'OFF';
-  state_right?: 'ON' | 'OFF';
-
-  // RGB strip states
-  color?: { r: number; g: number; b: number };
-
-  // Curtain states
-  position?: number; // 0-100
 
   [key: string]: unknown;
 }

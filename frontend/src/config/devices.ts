@@ -32,11 +32,6 @@ export const DEVICES_CONFIG: Record<string, DeviceConfig> = {
  * Room colors for canvas visualization
  */
 export const ROOM_COLORS: Record<string, string> = {
-  'Main - Eduard': 'rgba(155, 135, 245, 0.1)',
-  'Living Room': 'rgba(16, 185, 129, 0.1)',
-  Kitchen: 'rgba(245, 158, 11, 0.1)',
-  Bedroom: 'rgba(59, 130, 246, 0.1)',
-  Bathroom: 'rgba(236, 72, 153, 0.1)',
   Other: 'rgba(107, 114, 128, 0.1)',
 };
 
