@@ -7,6 +7,7 @@ import { memo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import type { GlobToolCall, GrepToolCall, WebSearchToolCall, WebFetchToolCall } from '@/types/ai-chat';
 import { ToolCard } from './ToolCard';
+import { truncatePath } from './toolUtils';
 
 /**
  * File chip component
@@ -51,46 +52,61 @@ export const GlobToolCard = memo(function GlobToolCard({
 }: {
   tool: GlobToolCall;
 }) {
-  const [showAll, setShowAll] = useState(false);
   const hasResult = tool.status === 'completed' && tool.result;
   const files = tool.result?.filenames || [];
-  const maxDisplay = 10;
-  const displayFiles = showAll ? files : files.slice(0, maxDisplay);
 
-  return (
-    <ToolCard tool={tool} defaultExpanded={false}>
-      {hasResult && (
-        <div className="space-y-2">
-          {/* Pattern info */}
-          <div className="flex items-center justify-between text-[10px] text-white/40">
-            <span className="font-mono">{tool.input.pattern}</span>
-            <span>{files.length} files found</span>
-          </div>
+  // Preview: first 5 files
+  const preview = (
+    <div className="px-3 py-2 space-y-2">
+      {/* Summary */}
+      <div className="text-[10px] text-white/40">
+        Found {files.length} {files.length === 1 ? 'file' : 'files'}
+      </div>
 
-          {/* File list */}
-          {files.length > 0 ? (
-            <div className="flex flex-wrap gap-1.5">
-              {displayFiles.map((file, i) => (
-                <FileChip key={i} path={file} />
-              ))}
+      {/* First 5 files as paths */}
+      {hasResult && files.length > 0 && (
+        <div className="space-y-0.5">
+          {files.slice(0, 5).map((file, i) => (
+            <div key={i} className="font-mono text-[11px] text-white/60 truncate">
+              {truncatePath(file, 60)}
             </div>
-          ) : (
-            <div className="text-[11px] text-white/30 italic">No files found</div>
-          )}
-
-          {/* Show more */}
-          {files.length > maxDisplay && (
-            <button
-              onClick={() => setShowAll(!showAll)}
-              className="text-[10px] text-primary/70 hover:text-primary transition-colors"
-            >
-              {showAll ? 'Show less' : `+${files.length - maxDisplay} more`}
-            </button>
+          ))}
+          {files.length > 5 && (
+            <div className="text-[10px] text-white/30 pt-1">
+              +{files.length - 5} more files
+            </div>
           )}
         </div>
       )}
-    </ToolCard>
+
+      {/* No files */}
+      {hasResult && files.length === 0 && (
+        <div className="text-[11px] text-white/30 italic">No files found</div>
+      )}
+
+      {/* Running state */}
+      {!hasResult && (tool.status === 'running' || tool.status === 'pending') && (
+        <div className="text-[10px] text-white/40">Searching...</div>
+      )}
+    </div>
   );
+
+  // Expanded: all files with chips
+  const expanded = hasResult && files.length > 0 ? (
+    <div className="p-3 space-y-2">
+      <div className="text-[10px] text-white/40">
+        Pattern: <span className="font-mono text-white/50">{tool.input.pattern}</span> • {files.length} matches
+      </div>
+
+      <div className="flex flex-wrap gap-1.5 max-h-[400px] overflow-y-auto">
+        {files.map((file, i) => (
+          <FileChip key={i} path={file} />
+        ))}
+      </div>
+    </div>
+  ) : null;
+
+  return <ToolCard tool={tool} preview={preview} expanded={expanded} />;
 });
 
 /**

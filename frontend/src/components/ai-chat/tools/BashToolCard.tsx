@@ -3,10 +3,11 @@
  * Beautiful terminal-style display for command execution
  */
 
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { cn } from '@/lib/utils';
 import type { BashToolCall } from '@/types/ai-chat';
 import { ToolCard } from './ToolCard';
+import { getLastLines } from './toolUtils';
 
 /**
  * Terminal output line
@@ -42,78 +43,100 @@ export const BashToolCard = memo(function BashToolCard({
 }: {
   tool: BashToolCall;
 }) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const hasResult = tool.status === 'completed' && tool.result;
 
-  // Split output into lines for truncation
-  const outputLines = hasResult ? (tool.result?.stdout || '').split('\n') : [];
-  const errorLines = hasResult ? (tool.result?.stderr || '').split('\n').filter(Boolean) : [];
-  const maxLines = 8;
-  const totalLines = outputLines.length + errorLines.length;
-  const needsTruncation = totalLines > maxLines;
+  const stdout = hasResult ? (tool.result?.stdout || '') : '';
+  const stderr = hasResult ? (tool.result?.stderr || '') : '';
+  const hasError = stderr.length > 0;
 
-  const displayOutputLines = isExpanded
-    ? outputLines
-    : outputLines.slice(0, Math.max(0, maxLines - errorLines.length));
+  // Preview: command + smart output (stderr if exists, otherwise last 5 lines of stdout)
+  const preview = (
+    <div className="px-3 py-2 space-y-1 relative">
+      {/* Command - always visible */}
+      <TerminalLine content={tool.input.command} type="command" />
 
-  return (
-    <ToolCard tool={tool} defaultExpanded={false}>
-      <div className="rounded-md overflow-hidden bg-[#0d1117] border border-white/[0.06]">
-        {/* Terminal header */}
-        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/[0.03] border-b border-white/[0.06]">
-          <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
-          <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
-          <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
-          <span className="ml-2 text-[10px] text-white/30">
-            {tool.input.description || 'Terminal'}
-          </span>
+      {/* Smart output */}
+      {hasResult && (
+        <div className="relative">
+          {hasError ? (
+            // Show all stderr if exists (it's important!)
+            <div className="space-y-1">
+              {stderr.split('\n').filter(Boolean).map((line, i) => (
+                <TerminalLine key={`err-${i}`} content={line} type="error" />
+              ))}
+            </div>
+          ) : (
+            // Show last 5 lines of stdout
+            <div className="space-y-1">
+              {getLastLines(stdout, 5).map((line, i) => (
+                <TerminalLine key={`out-${i}`} content={line} type="output" />
+              ))}
+            </div>
+          )}
+
+          {/* Fade-out gradient hint */}
+          {stdout.split('\n').length > 5 && !hasError && (
+            <div className="absolute bottom-0 left-0 right-0 h-5 bg-gradient-to-t from-white/[0.02] to-transparent pointer-events-none" />
+          )}
         </div>
+      )}
 
+      {/* Running indicator */}
+      {(tool.status === 'running' || tool.status === 'pending') && (
+        <div className="flex items-center gap-2 pt-1">
+          <div className="w-2 h-4 bg-emerald-400 animate-pulse" />
+          <span className="text-[10px] text-white/40">Running...</span>
+        </div>
+      )}
+    </div>
+  );
+
+  // Expanded: full terminal with all output
+  const expanded = hasResult ? (
+    <div className="p-3">
+      <div className="rounded-md overflow-hidden bg-black/20 border border-white/[0.04]">
         {/* Terminal content */}
-        <div className="p-3 space-y-1 max-h-[300px] overflow-y-auto">
+        <div className="p-3 space-y-1 max-h-[400px] overflow-y-auto">
           {/* Command */}
           <TerminalLine content={tool.input.command} type="command" />
 
-          {/* Output */}
-          {hasResult && (
-            <>
-              {displayOutputLines.map((line, i) => (
-                <TerminalLine key={`out-${i}`} content={line} type="output" />
-              ))}
+          {/* All stdout */}
+          {stdout.split('\n').map((line, i) => (
+            <TerminalLine key={`out-${i}`} content={line} type="output" />
+          ))}
 
-              {/* Errors */}
-              {errorLines.map((line, i) => (
-                <TerminalLine key={`err-${i}`} content={line} type="error" />
-              ))}
+          {/* All stderr */}
+          {stderr.split('\n').filter(Boolean).map((line, i) => (
+            <TerminalLine key={`err-${i}`} content={line} type="error" />
+          ))}
 
-              {/* Exit code if error */}
-              {tool.result?.exit_code !== undefined && tool.result.exit_code !== 0 && (
-                <div className="pt-2 text-[10px] text-red-400/60">
-                  Exit code: {tool.result.exit_code}
-                </div>
-              )}
-            </>
-          )}
-
-          {/* Running indicator */}
-          {(tool.status === 'running' || tool.status === 'pending') && (
-            <div className="flex items-center gap-2 pt-1">
-              <div className="w-2 h-4 bg-emerald-400 animate-pulse" />
+          {/* Exit code if error */}
+          {tool.result?.exit_code !== undefined && tool.result.exit_code !== 0 && (
+            <div className="pt-2 text-[10px] text-red-400/60">
+              Exit code: {tool.result.exit_code}
             </div>
           )}
         </div>
 
-        {/* Expand button */}
-        {needsTruncation && (
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="w-full py-1.5 text-[10px] text-white/40 hover:text-white/60 bg-white/[0.02] border-t border-white/[0.06] transition-colors"
-          >
-            {isExpanded ? 'Show less' : `Show ${totalLines - maxLines} more lines`}
-          </button>
-        )}
+        {/* Footer with metadata */}
+        <div className="px-3 py-2 border-t border-white/[0.04] bg-white/[0.02]">
+          <div className="flex items-center gap-3 text-[10px] text-white/30">
+            {tool.result?.exit_code !== undefined && (
+              <span>Exit: {tool.result.exit_code}</span>
+            )}
+            <span>{stdout.length + stderr.length} bytes</span>
+          </div>
+        </div>
       </div>
-    </ToolCard>
+    </div>
+  ) : null;
+
+  return (
+    <ToolCard
+      tool={tool}
+      preview={preview}
+      expanded={expanded}
+    />
   );
 });
 

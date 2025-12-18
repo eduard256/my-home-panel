@@ -13,7 +13,9 @@ import { getToolIcon, SpinnerIcon, CheckIcon, ErrorIcon } from '../icons/ToolIco
 interface ToolCardProps {
   tool: ToolCall;
   defaultExpanded?: boolean;
-  children?: React.ReactNode;
+  preview?: React.ReactNode;
+  expanded?: React.ReactNode;
+  children?: React.ReactNode; // Fallback for old API
 }
 
 /**
@@ -130,11 +132,17 @@ function getStatusColor(status: ToolStatus): string {
 export const ToolCard = memo(function ToolCard({
   tool,
   defaultExpanded = false,
+  preview,
+  expanded,
   children,
 }: ToolCardProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const Icon = getToolIcon(tool.name);
-  const hasContent = Boolean(children);
+
+  // Support both new API (preview/expanded) and old API (children)
+  const previewContent = preview || children;
+  const expandedContent = expanded;
+  const hasExpandedContent = Boolean(expandedContent);
 
   return (
     <motion.div
@@ -150,13 +158,13 @@ export const ToolCard = memo(function ToolCard({
     >
       {/* Header */}
       <button
-        onClick={() => hasContent && setIsExpanded(!isExpanded)}
-        disabled={!hasContent}
+        onClick={() => hasExpandedContent && setIsExpanded(!isExpanded)}
+        disabled={!hasExpandedContent}
         className={cn(
           'w-full flex items-center gap-3 px-3 py-2.5',
           'text-left transition-colors',
-          hasContent && 'hover:bg-white/[0.02] cursor-pointer',
-          !hasContent && 'cursor-default'
+          hasExpandedContent && 'hover:bg-white/[0.02] cursor-pointer',
+          !hasExpandedContent && 'cursor-default'
         )}
       >
         {/* Tool Icon */}
@@ -182,7 +190,7 @@ export const ToolCard = memo(function ToolCard({
             {formatTime(tool.timestamp)}
           </span>
           <StatusIndicator status={tool.status} />
-          {hasContent && (
+          {hasExpandedContent && (
             <ChevronDown
               className={cn(
                 'w-3.5 h-3.5 text-white/30 transition-transform',
@@ -193,19 +201,31 @@ export const ToolCard = memo(function ToolCard({
         </div>
       </button>
 
-      {/* Expandable Content */}
-      <AnimatePresence initial={false}>
-        {isExpanded && hasContent && (
+      {/* Preview Content - Always visible when collapsed */}
+      <AnimatePresence mode="wait">
+        {!isExpanded && previewContent && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="overflow-hidden"
+            key="preview"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.1 }}
           >
-            <div className="px-3 pb-3 pt-1 border-t border-white/[0.04]">
-              {children}
-            </div>
+            {previewContent}
+          </motion.div>
+        )}
+
+        {/* Expanded Content - Shows when expanded */}
+        {isExpanded && expandedContent && (
+          <motion.div
+            key="expanded"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.1 }}
+            className="border-t border-white/[0.04]"
+          >
+            {expandedContent}
           </motion.div>
         )}
       </AnimatePresence>
