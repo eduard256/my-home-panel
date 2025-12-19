@@ -72,15 +72,15 @@ class AutomationClient:
             logger.error(f"Automation API unexpected error: {e}")
             return None
 
-    async def get_health(self) -> dict | None:
+    async def get_health(self) -> dict | list | None:
         """Get API health status."""
         return await self._request("GET", "/api/health")
 
-    async def get_automations(self) -> dict | None:
+    async def get_automations(self) -> dict | list | None:
         """Get all automations."""
         return await self._request("GET", "/api/automations")
 
-    async def get_automation(self, name: str) -> dict | None:
+    async def get_automation(self, name: str) -> dict | list | None:
         """
         Get single automation by name.
         Name can be either automation_name or container_name.
@@ -110,7 +110,7 @@ class AutomationClient:
 
         return None
 
-    async def control_automation(self, name: str, action: str) -> dict | None:
+    async def control_automation(self, name: str, action: str) -> dict | list | None:
         """
         Control automation (start/stop/restart).
         Name can be either automation_name or container_name.
@@ -129,7 +129,7 @@ class AutomationClient:
 
         return None
 
-    async def get_stats(self, container_name: str | None = None) -> dict | None:
+    async def get_stats(self, container_name: str | None = None) -> dict | list | None:
         """Get container stats."""
         if container_name:
             return await self._request("GET", f"/api/stats/{container_name}")
@@ -172,7 +172,7 @@ class AutomationService:
             return None
 
         data = await self._client.get_health()
-        if data is None:
+        if data is None or not isinstance(data, dict):
             return None
 
         return AutomationHealthResponse(
@@ -197,7 +197,7 @@ class AutomationService:
             )
 
         data = await self._client.get_automations()
-        if data is None:
+        if data is None or not isinstance(data, dict):
             return AutomationListResponse(
                 automations=[],
                 total=0,
@@ -276,7 +276,7 @@ class AutomationService:
             return None
 
         data = await self._client.get_automation(name)
-        if data is None:
+        if data is None or not isinstance(data, dict):
             return None
 
         # Parse same way as in get_automations
@@ -347,7 +347,7 @@ class AutomationService:
             )
 
         data = await self._client.control_automation(name, action)
-        if data is None:
+        if data is None or not isinstance(data, dict):
             return AutomationActionResponse(
                 success=False,
                 action=action,
@@ -372,7 +372,7 @@ class AutomationService:
             return None
 
         data = await self._client.get_stats(container_name)
-        if data is None:
+        if data is None or not isinstance(data, dict):
             return None
 
         if container_name:

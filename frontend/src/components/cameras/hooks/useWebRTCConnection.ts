@@ -81,6 +81,8 @@ export function useWebRTCConnection(
   const mountedRef = useRef(true);
   const attemptRef = useRef(0);
   const wasConnectedRef = useRef(false);
+  const connectRef = useRef<(attempt?: number) => void>(() => {});
+  const cleanupRef = useRef<() => void>(() => {});
 
   // Auth token
   const token = useAuthStore((state) => state.token);
@@ -127,6 +129,9 @@ export function useWebRTCConnection(
     }
   }, []);
 
+  // Update ref after cleanup is defined
+  cleanupRef.current = cleanup;
+
   /**
    * Schedule a retry with exponential backoff
    */
@@ -150,7 +155,7 @@ export function useWebRTCConnection(
 
     retryTimeoutRef.current = window.setTimeout(() => {
       if (mountedRef.current && enabled) {
-        connect(attempt + 1);
+        connectRef.current(attempt + 1);
       }
     }, delay);
   }, [enabled, onFailed]);
@@ -285,7 +290,7 @@ export function useWebRTCConnection(
               scheduleRetry(attemptRef.current, msg.value || 'Server error');
               break;
           }
-        } catch (err) {
+        } catch {
           // Ignore JSON parse errors for binary data
         }
       };
@@ -310,6 +315,9 @@ export function useWebRTCConnection(
     }
   }, [camera, token, enabled, cleanup, scheduleRetry, onConnected, info.state]);
 
+  // Update ref after connect is defined
+  connectRef.current = connect;
+
   /**
    * Manual reconnect (resets attempts)
    */
@@ -329,15 +337,15 @@ export function useWebRTCConnection(
     mountedRef.current = true;
 
     if (enabled && token) {
-      connect(1);
+      connectRef.current(1);
     } else {
-      cleanup();
+      cleanupRef.current();
       setInfo({ state: 'idle', attempt: 0, error: null });
     }
 
     return () => {
       mountedRef.current = false;
-      cleanup();
+      cleanupRef.current();
     };
   }, [enabled, token, camera]);
 

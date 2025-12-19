@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate-pwa-assets": "pwa-assets-generator"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -57,6 +58,8 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
+    "@vite-pwa/assets-generator": "^0.2.6",
+    "vite-plugin-pwa": "^0.21.1",
     "@types/node": "^22.7.4",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",

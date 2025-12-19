@@ -50,7 +50,7 @@ async def get_server_status(
 
     if status is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=404,
             detail=f"Server '{server_id}' not found"
         )
 

@@ -65,11 +65,11 @@ class FrigateClient:
             logger.error(f"Frigate unexpected error: {e}")
             return None
 
-    async def get_config(self) -> dict | None:
+    async def get_config(self) -> dict | list | None:
         """Get Frigate configuration."""
         return await self._request("GET", "/api/config")
 
-    async def get_stats(self) -> dict | None:
+    async def get_stats(self) -> dict | list | None:
         """Get Frigate system stats."""
         return await self._request("GET", "/api/stats")
 
@@ -83,7 +83,7 @@ class FrigateClient:
         has_clip: bool | None = None,
         has_snapshot: bool | None = None,
         include_thumbnails: int = 0
-    ) -> list | None:
+    ) -> dict | list | None:
         """Get detection events with optional filters."""
         params: dict[str, Any] = {
             "limit": limit,
@@ -178,7 +178,7 @@ class FrigateService:
             return CameraListResponse(cameras=[], total=0)
 
         config = await self._client.get_config()
-        if config is None:
+        if config is None or not isinstance(config, dict):
             return CameraListResponse(cameras=[], total=0)
 
         cameras: list[CameraInfo] = []
@@ -289,7 +289,7 @@ class FrigateService:
             return None
 
         stats_raw = await self._client.get_stats()
-        if stats_raw is None:
+        if stats_raw is None or not isinstance(stats_raw, dict):
             return None
 
         # Parse camera stats

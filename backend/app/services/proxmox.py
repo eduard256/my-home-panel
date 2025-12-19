@@ -84,7 +84,7 @@ class ProxmoxClient:
         """Get node status (CPU, memory, etc.)."""
         return await self._request("GET", f"/nodes/{self.node}/status")
 
-    async def get_node_rrddata(self, timeframe: str = "hour") -> list | None:
+    async def get_node_rrddata(self, timeframe: str = "hour") -> dict | None:
         """Get node RRD data for graphs."""
         return await self._request(
             "GET",
@@ -92,11 +92,11 @@ class ProxmoxClient:
             params={"timeframe": timeframe}
         )
 
-    async def get_vms(self) -> list | None:
+    async def get_vms(self) -> dict | None:
         """Get list of VMs (QEMU)."""
         return await self._request("GET", f"/nodes/{self.node}/qemu")
 
-    async def get_containers(self) -> list | None:
+    async def get_containers(self) -> dict | None:
         """Get list of containers (LXC)."""
         return await self._request("GET", f"/nodes/{self.node}/lxc")
 
@@ -114,7 +114,7 @@ class ProxmoxClient:
             f"/nodes/{self.node}/lxc/{vmid}/status/current"
         )
 
-    async def get_vm_rrddata(self, vmid: int, timeframe: str = "hour") -> list | None:
+    async def get_vm_rrddata(self, vmid: int, timeframe: str = "hour") -> dict | None:
         """Get VM RRD data for graphs."""
         return await self._request(
             "GET",
@@ -122,7 +122,7 @@ class ProxmoxClient:
             params={"timeframe": timeframe}
         )
 
-    async def get_container_rrddata(self, vmid: int, timeframe: str = "hour") -> list | None:
+    async def get_container_rrddata(self, vmid: int, timeframe: str = "hour") -> dict | None:
         """Get container RRD data for graphs."""
         return await self._request(
             "GET",
@@ -215,8 +215,10 @@ class ProxmoxService:
                     return base_status
 
                 # Get VM and container counts
-                vms = await client.get_vms() or []
-                cts = await client.get_containers() or []
+                vms_data = await client.get_vms()
+                cts_data = await client.get_containers()
+                vms: list[dict] = vms_data if isinstance(vms_data, list) else []
+                cts: list[dict] = cts_data if isinstance(cts_data, list) else []
 
                 vms_running = sum(1 for vm in vms if vm.get("status") == "running")
                 cts_running = sum(1 for ct in cts if ct.get("status") == "running")
@@ -299,13 +301,13 @@ class ProxmoxService:
             cts_task = client.get_containers()
             vms_raw, cts_raw = await asyncio.gather(vms_task, cts_task)
 
-            vms_raw = vms_raw or []
-            cts_raw = cts_raw or []
+            vms_list: list[dict] = vms_raw if isinstance(vms_raw, list) else []
+            cts_list: list[dict] = cts_raw if isinstance(cts_raw, list) else []
 
             all_vms: list[VMInfo] = []
 
             # Process VMs
-            for vm in vms_raw:
+            for vm in vms_list:
                 all_vms.append(VMInfo(
                     vmid=vm.get("vmid"),
                     name=vm.get("name", f"vm-{vm.get('vmid')}"),
@@ -332,7 +334,7 @@ class ProxmoxService:
                 ))
 
             # Process containers
-            for ct in cts_raw:
+            for ct in cts_list:
                 all_vms.append(VMInfo(
                     vmid=ct.get("vmid"),
                     name=ct.get("name", f"ct-{ct.get('vmid')}"),
