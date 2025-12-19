@@ -18,7 +18,7 @@ export interface AuthState {
 // ============================================
 // Navigation Types
 // ============================================
-export type CategoryId = 'servers' | 'vms' | 'automations' | 'devices' | 'cameras' | 'assistant';
+export type CategoryId = 'servers' | 'vms' | 'automations' | 'cameras' | 'assistant';
 
 export interface Category {
   id: CategoryId;
@@ -242,45 +242,6 @@ export interface AutomationMetrics {
   timestamps: string[];
   triggers: number[];
   errors: number[];
-}
-
-// ============================================
-// Device Types (Zigbee2MQTT)
-// ============================================
-export type DeviceType = 'switch' | 'dimmer' | 'sensor' | 'thermostat';
-
-export interface DeviceState {
-  // Common states
-  state?: 'ON' | 'OFF';
-  brightness?: number;
-  temperature?: number;
-  humidity?: number;
-  battery?: number;
-  linkquality?: number;
-  power?: number;
-
-  [key: string]: unknown;
-}
-
-export interface Device {
-  id: string;
-  name: string;
-  room: string;
-  type: DeviceType;
-  topic: string;
-  canvasPosition: { x: number; y: number };
-  icon: string;
-  state?: DeviceState;
-}
-
-export interface DeviceConfig {
-  id: string;
-  name: string;
-  room: string;
-  type: DeviceType;
-  topic: string;
-  canvasPosition: { x: number; y: number };
-  icon: string;
 }
 
 // ============================================

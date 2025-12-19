@@ -30,7 +30,6 @@ export function MainLayout() {
 
   const category = getCategoryById(currentCategory);
   const isAIEnabled = category?.aiEnabled && currentCategory !== 'cameras';
-  const isDevicesSection = currentCategory === 'devices';
 
   // Mark first visit complete after animation
   useEffect(() => {
@@ -85,7 +84,7 @@ export function MainLayout() {
             className={cn(
               'flex-1 min-w-0',
               // When Block 3 is open, Block 2 shrinks on desktop
-              block3State.isOpen && !isDevicesSection && 'lg:flex-[1]'
+              block3State.isOpen && 'lg:flex-[1]'
             )}
           >
             <AnimatePresence mode="wait">
@@ -106,7 +105,7 @@ export function MainLayout() {
 
           {/* Block 3 - Detail/AI Chat */}
           <AnimatePresence>
-            {block3State.isOpen && !isDevicesSection && (
+            {block3State.isOpen && (
               <motion.div
                 initial={{ opacity: 0, x: 100, scale: 0.95 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -167,7 +166,7 @@ export function MainLayout() {
         </AnimatePresence>
 
         {/* AI FAB Button (when Block 3 is closed and AI is enabled) */}
-        {isAIEnabled && !block3State.isOpen && !isDevicesSection && (
+        {isAIEnabled && !block3State.isOpen && (
           <motion.div
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -185,7 +184,7 @@ export function MainLayout() {
 
         {/* Mobile Bottom Sheet for Block 3 */}
         <AnimatePresence>
-          {block3State.isOpen && !isDevicesSection && (
+          {block3State.isOpen && (
             <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}

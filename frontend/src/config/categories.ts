@@ -23,14 +23,6 @@ export const CATEGORIES: Category[] = [
     aiEnabled: true,
   },
   {
-    id: 'devices',
-    name: 'Smart Devices',
-    icon: 'Lightbulb',
-    order: 4,
-    aiEnabled: true,
-    customLayout: true,
-  },
-  {
     id: 'cameras',
     name: 'Cameras',
     icon: 'Camera',
