@@ -26,7 +26,7 @@ export function DeviceCard({
   icon,
   children,
   onClick,
-  onDetailOpen,
+  onDetailOpen: _onDetailOpen,
 }: DeviceCardProps) {
   const isWide = size === '2x1';
 

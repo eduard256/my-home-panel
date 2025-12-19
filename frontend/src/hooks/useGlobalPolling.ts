@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { api, endpoints } from '@/lib/api';
-import type { ServerInfo, Camera, Automation, VM } from '@/types';
+import type { ServerInfo, Automation, VM } from '@/types';
 
 /**
  * Global polling hook that runs at the App level.
@@ -43,17 +43,6 @@ export function useGlobalPolling() {
       return results;
     },
     enabled: serverIds.length > 0,
-    refetchInterval: 30000,
-    refetchIntervalInBackground: true,
-  });
-
-  // Poll cameras every 30 seconds
-  useQuery<Camera[]>({
-    queryKey: ['cameras'],
-    queryFn: async () => {
-      const response = await api.get(endpoints.cameras.list);
-      return response.data;
-    },
     refetchInterval: 30000,
     refetchIntervalInBackground: true,
   });

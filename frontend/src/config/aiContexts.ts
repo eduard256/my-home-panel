@@ -63,16 +63,13 @@ Your capabilities include:
 Provide clear, actionable commands for device control and troubleshooting steps for connectivity issues.`,
   },
 
-  cameras: undefined, // AI not available for cameras
-
   assistant: {
     cwd: '/home/user/assistant',
-    systemPrompt: `You are a universal home infrastructure assistant with access to all systems: Proxmox servers, VMs, containers, Frigate cameras, Zigbee2MQTT devices, and automation containers.
+    systemPrompt: `You are a universal home infrastructure assistant with access to all systems: Proxmox servers, VMs, containers, Zigbee2MQTT devices, and automation containers.
 
 Your capabilities span:
 - Server and VM/CT management
 - Smart home device control
-- Camera event analysis
 - Automation management
 - Cross-system troubleshooting
 - Infrastructure optimization
@@ -96,14 +93,9 @@ export const ASSISTANT_TEMPLATES = [
     prompt: 'Show the status of all Zigbee2MQTT devices grouped by room. Include device states, battery levels for sensors, and link quality.',
   },
   {
-    icon: 'Camera',
-    label: 'Camera events',
-    prompt: 'Show recent camera events from the last hour across all Frigate cameras. Summarize detection counts by camera and object type.',
-  },
-  {
     icon: 'AlertTriangle',
     label: 'Check for issues',
-    prompt: 'Perform a health check across all systems. Check for: server issues, VM/CT problems, automation errors, offline devices, and camera issues. Report any problems found.',
+    prompt: 'Perform a health check across all systems. Check for: server issues, VM/CT problems, automation errors, and offline devices. Report any problems found.',
   },
   {
     icon: 'Zap',
@@ -113,7 +105,7 @@ export const ASSISTANT_TEMPLATES = [
   {
     icon: 'Activity',
     label: 'System overview',
-    prompt: 'Give me a comprehensive overview of the entire home infrastructure: servers, VMs, automations, devices, and cameras. Highlight anything that needs attention.',
+    prompt: 'Give me a comprehensive overview of the entire home infrastructure: servers, VMs, automations, and devices. Highlight anything that needs attention.',
   },
 ];
 

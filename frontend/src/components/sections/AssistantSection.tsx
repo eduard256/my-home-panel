@@ -4,7 +4,6 @@ import {
   MessageSquare,
   Server,
   Home,
-  Camera,
   AlertTriangle,
   Zap,
   Activity,
@@ -21,7 +20,6 @@ import type { UserMessage } from '@/types/ai-chat';
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Server,
   Home,
-  Camera,
   AlertTriangle,
   Zap,
   Activity,

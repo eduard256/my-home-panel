@@ -5,7 +5,6 @@ import {
   Box,
   Zap,
   Lightbulb,
-  Camera,
   MessageSquare,
   LogOut,
   User,
@@ -23,8 +22,8 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Box,
   Zap,
   Lightbulb,
-  Camera,
   MessageSquare,
+  Home: Lightbulb,
 };
 
 /**

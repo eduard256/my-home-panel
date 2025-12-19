@@ -18,7 +18,7 @@ export interface AuthState {
 // ============================================
 // Navigation Types
 // ============================================
-export type CategoryId = 'servers' | 'vms' | 'automations' | 'devices' | 'cameras' | 'assistant';
+export type CategoryId = 'servers' | 'vms' | 'automations' | 'devices' | 'assistant';
 
 export interface Category {
   id: CategoryId;
@@ -242,40 +242,6 @@ export interface AutomationMetrics {
   timestamps: string[];
   triggers: number[];
   errors: number[];
-}
-
-// ============================================
-// Camera Types (Frigate)
-// ============================================
-export interface Camera {
-  name: string;
-  status: 'online' | 'offline';
-  fps: number;
-  width: number;
-  height: number;
-  detection_enabled: boolean;
-  zones: string[];
-}
-
-export interface CameraEvent {
-  id: string;
-  camera: string;
-  label: string;
-  score: number;
-  zone?: string;
-  start_time: number;
-  end_time?: number;
-  has_snapshot: boolean;
-  has_clip: boolean;
-  thumbnail?: string;
-}
-
-export interface CameraDetail extends Camera {
-  recent_events: CameraEvent[];
-  detection_stats: {
-    hour: number;
-    count: number;
-  }[];
 }
 
 // ============================================

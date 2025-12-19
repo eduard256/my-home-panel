@@ -2,7 +2,6 @@ import { useNavigationStore } from '@/stores';
 import { ServerDetail } from './details/ServerDetail';
 import { VMDetail } from './details/VMDetail';
 import { AutomationDetail } from './details/AutomationDetail';
-import { CameraDetail } from './details/CameraDetail';
 import { DeviceDetailPanel } from '@/components/smart-home/details';
 
 /**
@@ -22,8 +21,6 @@ export function DetailPanel() {
       return <VMDetail id={block3State.detailId || ''} />;
     case 'automations':
       return <AutomationDetail name={block3State.detailId || ''} />;
-    case 'cameras':
-      return <CameraDetail name={block3State.detailId || ''} />;
     case 'devices':
       return <DeviceDetailPanel deviceId={block3State.detailId || ''} onClose={closeBlock3} />;
     default:

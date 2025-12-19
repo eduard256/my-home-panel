@@ -29,7 +29,7 @@ export function MainLayout() {
   const [hasAnimated, setHasAnimated] = useState(!isFirstVisit);
 
   const category = getCategoryById(currentCategory);
-  const isAIEnabled = category?.aiEnabled && currentCategory !== 'cameras';
+  const isAIEnabled = category?.aiEnabled;
 
   // Mark first visit complete after animation
   useEffect(() => {

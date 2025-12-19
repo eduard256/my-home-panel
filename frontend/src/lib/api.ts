@@ -113,16 +113,6 @@ export const endpoints = {
     deviceMetrics: (topic: string) => `/api/metrics/device?topic=${encodeURIComponent(topic)}`,
   },
 
-  // Cameras (Frigate)
-  cameras: {
-    list: '/api/frigate/cameras',
-    detail: (name: string) => `/api/frigate/cameras/${name}`,
-    snapshot: (name: string, quality = 70) =>
-      `/api/frigate/cameras/${name}/snapshot?quality=${quality}`,
-    events: '/api/frigate/events',
-    eventSnapshot: (eventId: string) => `/api/frigate/events/${eventId}/snapshot`,
-  },
-
   // AI Chat
   ai: {
     chat: '/api/ai/chat',

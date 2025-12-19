@@ -53,7 +53,6 @@ const initialSessions: Record<CategoryId, ChatSession> = {
   vms: createEmptySession(),
   automations: createEmptySession(),
   devices: createEmptySession(),
-  cameras: createEmptySession(),
   assistant: createEmptySession(),
 };
 

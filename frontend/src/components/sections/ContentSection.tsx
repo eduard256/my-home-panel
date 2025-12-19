@@ -2,7 +2,6 @@ import { useNavigationStore } from '@/stores';
 import { ServersSection } from './ServersSection';
 import { VMsSection } from './VMsSection';
 import { AutomationsSection } from './AutomationsSection';
-import { CamerasSection } from './CamerasSection';
 import { AssistantSection } from './AssistantSection';
 import { SmartHomeSection } from '@/components/smart-home';
 
@@ -21,8 +20,6 @@ export function ContentSection() {
       return <AutomationsSection />;
     case 'devices':
       return <SmartHomeSection />;
-    case 'cameras':
-      return <CamerasSection />;
     case 'assistant':
       return <AssistantSection />;
     default:

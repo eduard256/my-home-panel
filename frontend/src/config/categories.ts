@@ -30,20 +30,6 @@ export const CATEGORIES: Category[] = [
     aiEnabled: false,
   },
   {
-    id: 'cameras',
-    name: 'Cameras',
-    icon: 'Camera',
-    order: 5,
-    aiEnabled: false,
-  },
-  // {
-  //   id: 'camtest',
-  //   name: 'Camera Test',
-  //   icon: 'Video',
-  //   order: 6,
-  //   aiEnabled: false,
-  // },
-  {
     id: 'assistant',
     name: 'Assistant',
     icon: 'MessageSquare',

@@ -47,7 +47,7 @@ export const SERVERS_CONFIG: Record<string, ServerConfig> = {
         },
         {
           label: 'Service Health',
-          prompt: 'Check health of all smart home services running on PVE-2: Home Assistant, Zigbee2MQTT, Frigate, etc.',
+          prompt: 'Check health of all smart home services running on PVE-2: Home Assistant, Zigbee2MQTT, etc.',
         },
         {
           label: 'Resource Usage',
@@ -57,13 +57,13 @@ export const SERVERS_CONFIG: Record<string, ServerConfig> = {
     },
     chartHooks: {
       cpu: {
-        aiPrompt: 'Analyze CPU usage for PVE-2 smart home server. Check if any automation or camera processing is causing high load.',
+        aiPrompt: 'Analyze CPU usage for PVE-2 smart home server. Check if any automation is causing high load.',
       },
       memory: {
-        aiPrompt: 'Check memory usage on PVE-2. Are Home Assistant, Frigate, and other services running within healthy limits?',
+        aiPrompt: 'Check memory usage on PVE-2. Are Home Assistant and other services running within healthy limits?',
       },
       network: {
-        aiPrompt: 'Analyze network traffic on PVE-2. Check for unusual IoT device activity or camera stream bandwidth.',
+        aiPrompt: 'Analyze network traffic on PVE-2. Check for unusual IoT device activity.',
       },
     },
   },
