@@ -4,6 +4,7 @@ import { VMsSection } from './VMsSection';
 import { AutomationsSection } from './AutomationsSection';
 import { CamerasSection } from './CamerasSection';
 import { AssistantSection } from './AssistantSection';
+import { SmartHomeSection } from '@/components/smart-home';
 
 /**
  * ContentSection - Routes to the appropriate section based on current category
@@ -18,6 +19,8 @@ export function ContentSection() {
       return <VMsSection />;
     case 'automations':
       return <AutomationsSection />;
+    case 'devices':
+      return <SmartHomeSection />;
     case 'cameras':
       return <CamerasSection />;
     case 'assistant':
