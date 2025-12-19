@@ -51,6 +51,7 @@ function createEmptySession(): ChatSession {
 const initialSessions: Record<CategoryId, ChatSession> = {
   servers: createEmptySession(),
   vms: createEmptySession(),
+  cameras: createEmptySession(),
   automations: createEmptySession(),
   devices: createEmptySession(),
   assistant: createEmptySession(),

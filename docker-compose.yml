@@ -9,6 +9,10 @@ services:
     container_name: home-panel-backend
     ports:
       - "8000:8000"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     volumes:
       # Database persistence
       - ./data:/app/data

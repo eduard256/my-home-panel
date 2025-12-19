@@ -16,17 +16,25 @@ export const CATEGORIES: Category[] = [
     aiEnabled: true,
   },
   {
+    id: 'cameras',
+    name: 'Cameras',
+    icon: 'Camera',
+    order: 3,
+    aiEnabled: false,
+    customLayout: true,
+  },
+  {
     id: 'automations',
     name: 'Automations',
     icon: 'Zap',
-    order: 3,
+    order: 4,
     aiEnabled: true,
   },
   {
     id: 'devices',
     name: 'Smart Home',
     icon: 'Home',
-    order: 4,
+    order: 5,
     aiEnabled: false,
   },
   {
