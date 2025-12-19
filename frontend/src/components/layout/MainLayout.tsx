@@ -4,7 +4,7 @@ import { Menu, X, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigationStore } from '@/stores';
 import { AnimatedBackground } from './AnimatedBackground';
-import { Block, blockVariants, containerVariants } from './Block';
+import { Block } from './Block';
 import { NavigationMenu } from './NavigationMenu';
 import { ContentSection } from '@/components/sections/ContentSection';
 import { DetailPanel } from '@/components/sections/DetailPanel';
@@ -19,28 +19,14 @@ export function MainLayout() {
   const {
     currentCategory,
     block3State,
-    isFirstVisit,
-    setFirstVisitComplete,
     openAI,
     closeBlock3,
   } = useNavigationStore();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [hasAnimated, setHasAnimated] = useState(!isFirstVisit);
 
   const category = getCategoryById(currentCategory);
   const isAIEnabled = category?.aiEnabled;
-
-  // Mark first visit complete after animation
-  useEffect(() => {
-    if (isFirstVisit) {
-      const timer = setTimeout(() => {
-        setFirstVisitComplete();
-        setHasAnimated(true);
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [isFirstVisit, setFirstVisitComplete]);
 
   // Close mobile menu when category changes
   useEffect(() => {
@@ -62,25 +48,16 @@ export function MainLayout() {
 
       {/* Content Layer */}
       <div className="relative z-10 flex min-h-screen p-4 gap-4">
-        <motion.div
-          className="flex w-full gap-4"
-          variants={isFirstVisit ? containerVariants : undefined}
-          initial={isFirstVisit ? 'hidden' : false}
-          animate="visible"
-        >
+        <div className="flex w-full gap-4">
           {/* Block 1 - Navigation Menu (Desktop) */}
-          <motion.div
-            variants={isFirstVisit ? blockVariants : undefined}
-            className="hidden lg:block w-[280px] flex-shrink-0"
-          >
+          <div className="hidden lg:block w-[280px] flex-shrink-0">
             <Block className="h-[calc(100vh-2rem)]">
               <NavigationMenu />
             </Block>
-          </motion.div>
+          </div>
 
           {/* Block 2 - Content */}
-          <motion.div
-            variants={isFirstVisit ? blockVariants : undefined}
+          <div
             className={cn(
               'flex-1 min-w-0',
               // When Block 3 is open, Block 2 shrinks on desktop
@@ -90,7 +67,7 @@ export function MainLayout() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentCategory}
-                initial={hasAnimated ? { opacity: 0, filter: 'blur(10px)' } : false}
+                initial={{ opacity: 0, filter: 'blur(10px)' }}
                 animate={{ opacity: 1, filter: 'blur(0px)' }}
                 exit={{ opacity: 0, filter: 'blur(10px)' }}
                 transition={{ duration: 0.2 }}
@@ -101,7 +78,7 @@ export function MainLayout() {
                 </Block>
               </motion.div>
             </AnimatePresence>
-          </motion.div>
+          </div>
 
           {/* Block 3 - Detail/AI Chat */}
           <AnimatePresence>
@@ -127,7 +104,7 @@ export function MainLayout() {
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.div>
+        </div>
 
         {/* Mobile Menu Button */}
         <button

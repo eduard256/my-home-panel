@@ -120,8 +120,8 @@ function ServerCard({ server }: { server: ServerInfo }) {
         </div>
 
         {/* Network (Mini Sparklines) */}
-        <div className="flex gap-4">
-          <div className="flex-1">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="min-w-0 overflow-hidden">
             <div className="flex items-center gap-1 mb-1">
               <ArrowDownRight className="h-3 w-3 text-cyan-400" />
               <span className="text-tiny text-muted">IN</span>
@@ -133,7 +133,7 @@ function ServerCard({ server }: { server: ServerInfo }) {
               showArea={false}
             />
           </div>
-          <div className="flex-1">
+          <div className="min-w-0 overflow-hidden">
             <div className="flex items-center gap-1 mb-1">
               <ArrowUpRight className="h-3 w-3 text-orange-400" />
               <span className="text-tiny text-muted">OUT</span>
@@ -246,7 +246,7 @@ export function ServersSection() {
       </div>
 
       {/* Content */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 [&>div>div]:!block">
         <div className="p-6 space-y-4">
           {isLoading ? (
             <>
