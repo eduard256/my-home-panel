@@ -23,7 +23,7 @@ export function truncatePath(path: string, maxLength = 40): string {
 
   // Build path with middle truncation
   let result = firstSegment;
-  let remainingLength = maxLength - fileName.length - 7; // 7 for "/.../"
+  const remainingLength = maxLength - fileName.length - 7; // 7 for "/.../"
 
   for (let i = 1; i < segments.length - 1; i++) {
     const segment = segments[i];

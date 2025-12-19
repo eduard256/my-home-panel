@@ -222,7 +222,7 @@ function parseInline(text: string): React.ReactNode[] {
     }
 
     // Regular text - find next special character or end
-    const nextSpecial = remaining.search(/[`*\[]/);
+    const nextSpecial = remaining.search(/[`*[]/);
     if (nextSpecial === -1) {
       result.push(remaining);
       break;

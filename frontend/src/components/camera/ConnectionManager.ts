@@ -11,9 +11,9 @@ class CameraConnectionManager {
    */
   requestConnection(
     cameraId: string,
-    priority: number,
+    _priority: number,
     onConnect: () => void,
-    onError: () => void
+    _onError: () => void
   ) {
     // Don't connect if already active
     if (this.activeConnections.has(cameraId)) return;

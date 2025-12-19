@@ -5,7 +5,6 @@ Subscribes to MQTT SSE stream and stores device state changes.
 import asyncio
 import json
 import logging
-from datetime import datetime
 
 from app.config import get_settings
 from app.database import insert_device_state

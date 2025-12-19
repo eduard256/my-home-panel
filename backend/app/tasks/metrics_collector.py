@@ -2,7 +2,6 @@
 Metrics collection tasks.
 Periodically collects metrics from Proxmox servers and VMs.
 """
-import asyncio
 import logging
 
 from app.services.proxmox import get_proxmox_service

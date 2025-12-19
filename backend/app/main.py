@@ -62,7 +62,7 @@ async def lifespan(app: FastAPI):
         await init_database()
 
         # Initialize JWT secret (will auto-generate if needed)
-        jwt_secret = get_jwt_secret()
+        get_jwt_secret()
         logger.info("JWT secret initialized")
 
         # Initialize services

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuthStore } from '@/stores/authStore';
-import { useCameraConnection } from '@/contexts/CameraConnectionContext';
 import { connectionManager } from './ConnectionManager';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -277,6 +276,7 @@ export function WebRTCPlayer({ camera, className, priority = 0 }: WebRTCPlayerPr
       cleanup();
       connectionManager.markDisconnected(camera);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [camera, token, priority]);
 
   return (
@@ -289,7 +289,6 @@ export function WebRTCPlayer({ camera, className, priority = 0 }: WebRTCPlayerPr
         className="w-full h-full object-contain"
         // Optimize for low latency
         style={{
-          // @ts-ignore - non-standard property for low latency
           objectFit: 'contain',
         }}
         // Disable preload to reduce buffering

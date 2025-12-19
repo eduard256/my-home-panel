@@ -171,8 +171,8 @@ export const AssistantMessageBubble = memo(function AssistantMessageBubble({
 
   // Sort by sequence (guaranteed chronological order)
   timelineItems.sort((a, b) => {
-    const seqA = (a.data as any).sequence ?? 0;
-    const seqB = (b.data as any).sequence ?? 0;
+    const seqA = (a.data as { sequence?: number }).sequence ?? 0;
+    const seqB = (b.data as { sequence?: number }).sequence ?? 0;
     return seqA - seqB;
   });
 

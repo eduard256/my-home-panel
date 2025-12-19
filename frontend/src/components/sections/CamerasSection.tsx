@@ -145,7 +145,7 @@ export function CamerasSection() {
               className="relative overflow-hidden"
               style={{ height: 'calc(33.333vh - 0.5px)' }}
             >
-              <CameraCell camera={camera} />
+              <CameraCell camera={camera} index={index} />
             </motion.div>
           ))}
         </div>

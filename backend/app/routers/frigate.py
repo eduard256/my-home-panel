@@ -7,9 +7,9 @@ import logging
 
 import httpx
 from fastapi import APIRouter, HTTPException, status, Query, Response, Request, WebSocket, WebSocketDisconnect
-from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.responses import FileResponse
 
-from app.auth import CurrentUser, CurrentUserOrToken, OptionalUser, verify_jwt
+from app.auth import CurrentUser, OptionalUser, verify_jwt
 from app.config import get_settings
 from app.services.frigate import get_frigate_service
 from app.models.frigate import (
@@ -356,5 +356,5 @@ async def proxy_go2rtc_websocket(
         logger.error(f"go2rtc WebSocket proxy error: {e}")
         try:
             await websocket.close(code=status.WS_1011_INTERNAL_ERROR, reason=str(e))
-        except:
+        except Exception:
             pass

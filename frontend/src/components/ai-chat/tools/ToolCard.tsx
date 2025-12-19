@@ -76,9 +76,10 @@ function getToolDescription(tool: ToolCall): string {
       return new URL(input.url as string).hostname;
     case 'Task':
       return input.subagent_type as string;
-    case 'TodoWrite':
+    case 'TodoWrite': {
       const todos = input.todos as Array<{ content: string }>;
       return `${todos?.length || 0} tasks`;
+    }
     case 'KillShell':
       return input.shell_id as string;
     default:

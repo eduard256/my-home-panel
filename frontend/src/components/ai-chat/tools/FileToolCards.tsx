@@ -3,7 +3,7 @@
  * Write, Edit, Read tools with beautiful diff display
  */
 
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { cn } from '@/lib/utils';
 import type { WriteToolCall, EditToolCall, ReadToolCall, DiffHunk } from '@/types/ai-chat';
 import { ToolCard } from './ToolCard';
@@ -59,47 +59,6 @@ function CodeLine({
   );
 }
 
-/**
- * Truncated code preview with expand functionality
- */
-function CodePreview({
-  content,
-  maxLines = 5,
-  showLineNumbers = true,
-  startLine = 1,
-}: {
-  content: string;
-  maxLines?: number;
-  showLineNumbers?: boolean;
-  startLine?: number;
-}) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const lines = content.split('\n');
-  const hasMore = lines.length > maxLines;
-  const displayLines = isExpanded ? lines : lines.slice(0, maxLines);
-
-  return (
-    <div className="rounded-md overflow-hidden bg-black/20 border border-white/[0.04]">
-      <div className="overflow-x-auto">
-        {displayLines.map((line, i) => (
-          <CodeLine
-            key={i}
-            lineNumber={showLineNumbers ? startLine + i : undefined}
-            content={line}
-          />
-        ))}
-      </div>
-      {hasMore && (
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full py-1.5 text-[10px] text-white/40 hover:text-white/60 bg-white/[0.02] border-t border-white/[0.04] transition-colors"
-        >
-          {isExpanded ? 'Show less' : `Show ${lines.length - maxLines} more lines`}
-        </button>
-      )}
-    </div>
-  );
-}
 
 /**
  * Unified diff display
@@ -152,7 +111,7 @@ export const WriteToolCard = memo(function WriteToolCard({
 }) {
   const hasResult = tool.status === 'completed' && tool.result;
   const content = tool.input.content || '';
-  const { lines, hasMore, hiddenCount } = limitLines(content, 7);
+  const { lines, hasMore } = limitLines(content, 7);
 
   // Preview: file path + first 7 lines with fade-out
   const preview = (

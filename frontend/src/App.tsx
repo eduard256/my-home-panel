@@ -6,7 +6,6 @@ import { useAuthStore } from '@/stores';
 import { LoginScreen } from '@/components/features/LoginScreen';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { CameraConnectionProvider } from '@/contexts/CameraConnectionContext';
 // GlobalPollingProvider removed - polling is now handled directly in hooks
 
 // Create a client

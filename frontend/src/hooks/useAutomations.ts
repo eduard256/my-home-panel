@@ -171,7 +171,7 @@ export function useAutomationLogs(name: string, enabled: boolean = true) {
         const decoder = new TextDecoder();
         let buffer = '';
 
-        while (true) {
+        for (;;) {
           const { done, value } = await reader.read();
           if (done) break;
 

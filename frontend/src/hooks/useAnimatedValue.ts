@@ -59,6 +59,8 @@ export function useAnimatedValue(
         clearInterval(animationRef.current);
       }
     };
+    // displayValue intentionally excluded - we only want to restart animation when target changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetValue, duration, step]);
 
   return displayValue;

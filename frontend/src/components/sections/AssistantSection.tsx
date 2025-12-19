@@ -99,10 +99,11 @@ export function AssistantSection() {
 
   // Get assistant chat history
   const assistantSession = sessions.assistant;
-  const messages = assistantSession?.messages || [];
+  const sessionMessages = assistantSession?.messages;
 
   // Group user messages by date
   const groupedHistory = useMemo(() => {
+    const messages = sessionMessages || [];
     const userMessages = messages.filter((m): m is UserMessage => m.role === 'user');
     const groups: Record<string, UserMessage[]> = {};
 
@@ -115,7 +116,7 @@ export function AssistantSection() {
     });
 
     return groups;
-  }, [messages]);
+  }, [sessionMessages]);
 
   const handleTemplateClick = (prompt: string) => {
     // Open AI chat and send the prompt

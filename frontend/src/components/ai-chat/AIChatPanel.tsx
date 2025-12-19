@@ -229,9 +229,10 @@ export function AIChatPanel() {
   }, [currentCategory]);
 
   // Scroll to bottom when messages change
+  const messagesLength = messages.length;
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isStreaming]);
+  }, [messagesLength, isStreaming]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -240,6 +241,13 @@ export function AIChatPanel() {
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
     }
   }, [input]);
+
+  const handleNewChat = useCallback(() => {
+    if (isStreaming) {
+      cancelStream();
+    }
+    clearSession(currentCategory);
+  }, [isStreaming, cancelStream, clearSession, currentCategory]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -257,7 +265,7 @@ export function AIChatPanel() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isStreaming, cancelStream]);
+  }, [isStreaming, cancelStream, handleNewChat]);
 
   const handleSend = useCallback(() => {
     if (!input.trim() || isStreaming || !aiContext) return;
@@ -284,13 +292,6 @@ export function AIChatPanel() {
         handleSend();
       }
     }
-  };
-
-  const handleNewChat = () => {
-    if (isStreaming) {
-      cancelStream();
-    }
-    clearSession(currentCategory);
   };
 
   const handleClose = () => {

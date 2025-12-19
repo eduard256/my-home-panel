@@ -1,7 +1,6 @@
 """AI Hub (Claude Code API) models."""
 from datetime import datetime
-from typing import Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class ChatRequest(BaseModel):

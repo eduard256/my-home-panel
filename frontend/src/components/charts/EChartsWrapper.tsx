@@ -14,13 +14,14 @@ export function EChartsWrapper(props: EChartsReactProps) {
 
   useEffect(() => {
     isMountedRef.current = true;
+    const currentChartRef = chartRef.current;
 
     return () => {
       isMountedRef.current = false;
       // Give the chart instance time to clean up properly
-      if (chartRef.current) {
+      if (currentChartRef) {
         try {
-          const instance = chartRef.current.getEchartsInstance();
+          const instance = currentChartRef.getEchartsInstance();
           if (instance && !instance.isDisposed()) {
             setTimeout(() => {
               if (!isMountedRef.current) {

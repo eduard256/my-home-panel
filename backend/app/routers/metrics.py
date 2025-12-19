@@ -4,9 +4,8 @@ Handles historical metrics for servers, VMs, automations, and devices.
 """
 import logging
 from datetime import datetime, timedelta
-from typing import Literal
 
-from fastapi import APIRouter, HTTPException, status, Query
+from fastapi import APIRouter, Query
 
 from app.auth import CurrentUser
 from app.database import (
@@ -238,7 +237,7 @@ async def get_device_metrics_endpoint(
             try:
                 import json
                 payload = json.loads(payload)
-            except:
+            except (json.JSONDecodeError, ValueError):
                 pass
 
         data.append(DeviceStatePoint(

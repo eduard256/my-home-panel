@@ -180,10 +180,11 @@ export class AIStreamProcessor {
       const parentTool = this.pendingToolCalls.get(event.parent_tool_use_id);
       if (parentTool && parentTool.name === 'Task') {
         // Store child events for display
-        if (!('childEvents' in parentTool)) {
-          (parentTool as any).childEvents = [];
+        const taskTool = parentTool as { childEvents?: AIStreamEvent[] };
+        if (!taskTool.childEvents) {
+          taskTool.childEvents = [];
         }
-        (parentTool as any).childEvents.push(event);
+        taskTool.childEvents.push(event);
       }
       return;
     }
@@ -246,7 +247,7 @@ export class AIStreamProcessor {
           if (toolCall.name === 'TodoWrite' && event.tool_use_result?.newTodos) {
             this.store._updateTodos(
               this.category,
-              event.tool_use_result.newTodos as any[]
+              event.tool_use_result.newTodos as Array<{ content: string; status: 'pending' | 'in_progress' | 'completed'; activeForm: string }>
             );
           }
         }
@@ -321,7 +322,7 @@ export async function createAIStream(
   const processor = new AIStreamProcessor(category, store, messageId);
 
   try {
-    while (true) {
+    for (;;) {
       const { done, value } = await reader.read();
       if (done) break;
 

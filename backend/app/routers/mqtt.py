@@ -4,7 +4,6 @@ Handles topics, publishing, and real-time SSE streaming.
 """
 import json
 import logging
-from typing import Any
 
 from fastapi import APIRouter, HTTPException, status, Query
 from sse_starlette.sse import EventSourceResponse

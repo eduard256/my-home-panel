@@ -4,7 +4,6 @@ Handles communication with Proxmox servers via REST API.
 """
 import asyncio
 import logging
-from typing import Any
 
 import httpx
 

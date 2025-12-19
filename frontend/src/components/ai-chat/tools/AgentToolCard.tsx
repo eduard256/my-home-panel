@@ -33,29 +33,34 @@ function AgentTimelineEvent({
   // Only show tool calls
   if (event.type !== 'assistant') return null;
 
-  const msg = (event as any).message;
+  interface ToolUseContent {
+    type: string;
+    name?: string;
+    input?: { file_path?: string; command?: string };
+  }
+  const msg = (event as { message?: { content?: ToolUseContent[] } }).message;
   if (!msg?.content) return null;
 
-  const toolUses = msg.content.filter((c: any) => c.type === 'tool_use');
+  const toolUses = msg.content.filter((c): c is ToolUseContent => c.type === 'tool_use');
   if (toolUses.length === 0) return null;
 
   return (
     <>
-      {toolUses.map((tool: any, i: number) => (
+      {toolUses.map((tool, i: number) => (
         <div
           key={i}
           className="flex items-center gap-2 py-1 text-[10px]"
         >
           <div className="w-1 h-1 rounded-full bg-white/30" />
-          <span className="text-white/50">{tool.name}</span>
+          <span className="text-white/50">{tool.name ?? ''}</span>
           {tool.input?.file_path && (
             <span className="text-white/30 truncate">
-              {(tool.input.file_path as string).split('/').pop()}
+              {tool.input.file_path.split('/').pop()}
             </span>
           )}
           {tool.input?.command && (
             <span className="text-white/30 truncate font-mono">
-              {(tool.input.command as string).slice(0, 30)}
+              {tool.input.command.slice(0, 30)}
             </span>
           )}
         </div>
@@ -77,7 +82,7 @@ export const AgentToolCard = memo(function AgentToolCard({
   const agentInfo = getAgentInfo(tool.input.subagent_type);
 
   // Get child events for timeline
-  const childEvents = (tool as any).childEvents || [];
+  const childEvents = (tool as { childEvents?: AIStreamEvent[] }).childEvents || [];
   const maxEvents = 5;
   const displayEvents = showAll ? childEvents : childEvents.slice(-maxEvents);
 

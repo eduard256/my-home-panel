@@ -102,7 +102,7 @@ async def _aggregate_and_delete(
     A full implementation would first aggregate data before deleting.
     """
     try:
-        db = await get_db()
+        await get_db()
 
         # For now, just delete old metrics
         # In a production system, you would first INSERT aggregated data

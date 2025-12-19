@@ -194,10 +194,11 @@ export const WebSearchToolCard = memo(function WebSearchToolCard({
 
   // Parse results (they come as text with URLs)
   // Handle both structured result {results: string} and raw content {content: string}
-  const resultText = typeof tool.result === 'object' && tool.result !== null
-    ? ('results' in tool.result ? String(tool.result.results || '') :
-       'content' in tool.result ? String(tool.result.content || '') :
-       'raw' in tool.result ? String(tool.result.raw || '') : '')
+  const resultObj = tool.result as Record<string, unknown> | null;
+  const resultText = typeof resultObj === 'object' && resultObj !== null
+    ? ('results' in resultObj ? String(resultObj.results || '') :
+       'content' in resultObj ? String(resultObj.content || '') :
+       'raw' in resultObj ? String(resultObj.raw || '') : '')
     : '';
   const maxLength = 500;
   const displayText = showAll ? resultText : resultText.slice(0, maxLength);
@@ -252,9 +253,10 @@ export const WebFetchToolCard = memo(function WebFetchToolCard({
   }
 
   // Handle both structured result {content: string} and raw content {raw: string}
-  const content = typeof tool.result === 'object' && tool.result !== null
-    ? ('content' in tool.result ? String(tool.result.content || '') :
-       'raw' in tool.result ? String(tool.result.raw || '') : '')
+  const resultObj = tool.result as Record<string, unknown> | null;
+  const content = typeof resultObj === 'object' && resultObj !== null
+    ? ('content' in resultObj ? String(resultObj.content || '') :
+       'raw' in resultObj ? String(resultObj.raw || '') : '')
     : '';
   const maxLength = 400;
   const displayContent = showAll ? content : content.slice(0, maxLength);
