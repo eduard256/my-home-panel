@@ -1,0 +1,94 @@
+# Home Panel - Docker Compose for Coolify Deployment
+#
+# Deployment notes:
+# - Frontend serves on port 80, set this as the exposed port in Coolify
+# - Backend is internal only, accessed via nginx proxy at /api/
+# - Set environment variables in Coolify UI (see .env.example for reference)
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: home-panel-backend
+    # No ports exposed - internal communication only via docker network
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      # Database persistence - Coolify will handle this path
+      - backend-data:/app/data
+    environment:
+      # Core
+      - ENV=${ENV:-production}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENABLE_MOCK_DATA=${ENABLE_MOCK_DATA:-false}
+      # Server
+      - HOST=0.0.0.0
+      - PORT=8000
+      # Authentication
+      - ACCESS_TOKEN=${ACCESS_TOKEN}
+      - JWT_SECRET=${JWT_SECRET}
+      # Proxmox NAS
+      - PROXMOX_NAS_IP=${PROXMOX_NAS_IP}
+      - PROXMOX_NAS_API_URL=${PROXMOX_NAS_API_URL}
+      - PROXMOX_NAS_API_USER=${PROXMOX_NAS_API_USER}
+      - PROXMOX_NAS_API_TOKEN=${PROXMOX_NAS_API_TOKEN}
+      - PROXMOX_NAS_NODE=${PROXMOX_NAS_NODE}
+      # Proxmox Smart Home
+      - PROXMOX_SMART_IP=${PROXMOX_SMART_IP}
+      - PROXMOX_SMART_API_URL=${PROXMOX_SMART_API_URL}
+      - PROXMOX_SMART_API_USER=${PROXMOX_SMART_API_USER}
+      - PROXMOX_SMART_API_TOKEN=${PROXMOX_SMART_API_TOKEN}
+      - PROXMOX_SMART_NODE=${PROXMOX_SMART_NODE}
+      # Frigate
+      - FRIGATE_URL=${FRIGATE_URL}
+      # MQTT API
+      - MQTT_API_URL=${MQTT_API_URL}
+      - MQTT_API_USER=${MQTT_API_USER}
+      - MQTT_API_PASSWORD=${MQTT_API_PASSWORD}
+      # Automation API
+      - AUTOMATION_API_URL=${AUTOMATION_API_URL}
+      - AUTOMATION_API_USER=${AUTOMATION_API_USER}
+      - AUTOMATION_API_PASSWORD=${AUTOMATION_API_PASSWORD}
+      # AI Hub
+      - AI_HUB_URL=${AI_HUB_URL}
+      - AI_HUB_USER=${AI_HUB_USER}
+      - AI_HUB_PASSWORD=${AI_HUB_PASSWORD}
+      # Database
+      - DATABASE_PATH=/app/data/metrics.db
+      # Metrics intervals
+      - METRICS_INTERVAL_SERVERS=${METRICS_INTERVAL_SERVERS:-10}
+      - METRICS_INTERVAL_VMS=${METRICS_INTERVAL_VMS:-30}
+      # Metrics retention
+      - METRICS_RETENTION_RAW=${METRICS_RETENTION_RAW:-3600}
+      - METRICS_RETENTION_MINUTE=${METRICS_RETENTION_MINUTE:-86400}
+      - METRICS_RETENTION_FIVE_MIN=${METRICS_RETENTION_FIVE_MIN:-604800}
+      - METRICS_RETENTION_THIRTY_MIN=${METRICS_RETENTION_THIRTY_MIN:-2592000}
+      - METRICS_RETENTION_HOUR=${METRICS_RETENTION_HOUR:-31536000}
+      - TZ=${TZ:-Europe/Moscow}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: home-panel-frontend
+    # Port 80 will be exposed by Coolify's proxy (Traefik)
+    expose:
+      - "80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  backend-data:
+    driver: local
