@@ -3,6 +3,15 @@
  * Parses SSE events from AI Hub API and dispatches to store
  */
 
+// Debug logging flag - set to true to enable detailed logs
+const DEBUG_SSE = true;
+
+function debugLog(context: string, ...args: unknown[]) {
+  if (DEBUG_SSE) {
+    console.log(`[SSE:${context}]`, new Date().toISOString(), ...args);
+  }
+}
+
 import type {
   AIStreamEvent,
   SSESystemInit,
@@ -31,18 +40,29 @@ type StoreActions = Pick<
  * Parse a single SSE line into an event object
  */
 export function parseSSELine(line: string): AIStreamEvent | null {
+  // Log all incoming lines including pings
+  if (line.startsWith(':')) {
+    debugLog('ping', 'Received keepalive ping:', line.substring(0, 50));
+    return null;
+  }
+
   if (!line.startsWith('data: ')) {
+    debugLog('parse', 'Skipping non-data line:', line.substring(0, 50));
     return null;
   }
 
   const data = line.slice(6);
   if (data === '[DONE]') {
+    debugLog('parse', 'Received [DONE] signal');
     return { type: 'done', process_id: '' };
   }
 
   try {
-    return JSON.parse(data) as AIStreamEvent;
-  } catch {
+    const parsed = JSON.parse(data) as AIStreamEvent;
+    debugLog('parse', 'Parsed event type:', parsed.type, 'subtype:', (parsed as SSESystemInit).subtype || 'n/a');
+    return parsed;
+  } catch (e) {
+    debugLog('parse', 'JSON parse error:', e, 'data:', data.substring(0, 100));
     return null;
   }
 }
@@ -115,11 +135,14 @@ export class AIStreamProcessor {
    * Process a chunk of SSE data
    */
   processChunk(chunk: string): void {
+    debugLog('chunk', `Received chunk (${chunk.length} bytes):`, chunk.substring(0, 100));
     this.buffer += chunk;
 
     const lines = this.buffer.split('\n');
     // Keep the last incomplete line in buffer
     this.buffer = lines.pop() || '';
+
+    debugLog('chunk', `Processing ${lines.length} lines, buffer remaining: ${this.buffer.length} bytes`);
 
     for (const line of lines) {
       if (!line.trim()) continue;
@@ -293,6 +316,11 @@ export async function createAIStream(
   const parsedToken = token ? JSON.parse(token) : null;
   const apiBaseUrl = import.meta.env.VITE_API_URL || '';
 
+  debugLog('stream', '=== Starting AI stream ===');
+  debugLog('stream', 'API URL:', apiBaseUrl);
+  debugLog('stream', 'Prompt:', prompt.substring(0, 100));
+  debugLog('stream', 'Session ID:', sessionId);
+
   const response = await fetch(`${apiBaseUrl}/api/ai/chat`, {
     method: 'POST',
     headers: {
@@ -309,6 +337,9 @@ export async function createAIStream(
     signal,
   });
 
+  debugLog('stream', 'Response status:', response.status);
+  debugLog('stream', 'Response headers:', Object.fromEntries(response.headers.entries()));
+
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -321,17 +352,39 @@ export async function createAIStream(
   const decoder = new TextDecoder();
   const processor = new AIStreamProcessor(category, store, messageId);
 
+  let chunkCount = 0;
+  let totalBytes = 0;
+  let lastChunkTime = Date.now();
+
   try {
     for (;;) {
+      const readStartTime = Date.now();
       const { done, value } = await reader.read();
-      if (done) break;
+      const readDuration = Date.now() - readStartTime;
+      const timeSinceLastChunk = Date.now() - lastChunkTime;
+
+      if (done) {
+        debugLog('stream', '=== Stream ended (done=true) ===');
+        debugLog('stream', `Total: ${chunkCount} chunks, ${totalBytes} bytes`);
+        break;
+      }
+
+      chunkCount++;
+      totalBytes += value?.length || 0;
+      lastChunkTime = Date.now();
+
+      debugLog('stream', `Chunk #${chunkCount}: ${value?.length || 0} bytes, read took ${readDuration}ms, gap ${timeSinceLastChunk}ms`);
 
       const chunk = decoder.decode(value, { stream: true });
       processor.processChunk(chunk);
     }
 
     processor.flush();
+  } catch (error) {
+    debugLog('stream', '=== Stream error ===', error);
+    throw error;
   } finally {
+    debugLog('stream', '=== Stream cleanup ===');
     reader.releaseLock();
   }
 }
