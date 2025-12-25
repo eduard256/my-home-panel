@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { UserFocus } from '@phosphor-icons/react';
 import { DeviceCard } from '../DeviceCard';
 import { mqttManager } from '@/services/mqtt-manager';
 import type { DeviceConfig, PresenceZoneState } from '@/types/smart-home';
+
+/** Debounce delay for turning off zone indicators (ms) */
+const OCCUPANCY_OFF_DELAY = 2000;
 
 interface PresenceZonesCardProps {
   device: DeviceConfig;
@@ -62,6 +65,7 @@ export function PresenceZonesCard({
   onDetailOpen,
 }: PresenceZonesCardProps) {
   const [zones, setZones] = useState<ZoneState[]>([]);
+  const offTimersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
 
   // Subscribe to all presence zone topics
   useEffect(() => {
@@ -77,25 +81,50 @@ export function PresenceZonesCard({
     }));
     setZones(initialZones);
 
-    // Subscribe to each zone topic
+    // Subscribe to each zone topic with debounced off state
     const unsubscribes = device.presenceZones.map((zone, index) => {
       return mqttManager.subscribe(zone.topic, (state) => {
         const presenceState = state as PresenceZoneState;
-        setZones((prev) => {
-          const updated = [...prev];
-          if (updated[index]) {
-            updated[index] = {
-              ...updated[index],
-              occupancy: presenceState.occupancy ?? false,
-            };
-          }
-          return updated;
-        });
+        const newOccupancy = presenceState.occupancy ?? false;
+
+        // Clear any existing off timer for this zone
+        const existingTimer = offTimersRef.current.get(index);
+        if (existingTimer) {
+          clearTimeout(existingTimer);
+          offTimersRef.current.delete(index);
+        }
+
+        if (newOccupancy) {
+          // Turn on immediately
+          setZones((prev) => {
+            const updated = [...prev];
+            if (updated[index]) {
+              updated[index] = { ...updated[index], occupancy: true };
+            }
+            return updated;
+          });
+        } else {
+          // Debounce turning off - wait 2 seconds before turning off
+          const timer = setTimeout(() => {
+            setZones((prev) => {
+              const updated = [...prev];
+              if (updated[index]) {
+                updated[index] = { ...updated[index], occupancy: false };
+              }
+              return updated;
+            });
+            offTimersRef.current.delete(index);
+          }, OCCUPANCY_OFF_DELAY);
+          offTimersRef.current.set(index, timer);
+        }
       });
     });
 
     return () => {
       unsubscribes.forEach((unsub) => unsub());
+      // Clear all pending timers on unmount
+      offTimersRef.current.forEach((timer) => clearTimeout(timer));
+      offTimersRef.current.clear();
     };
   }, [device.presenceZones]);
 
