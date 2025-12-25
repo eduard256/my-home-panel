@@ -169,8 +169,8 @@ export function YeelightStripCard({
     [onPublish, isOn]
   );
 
-  // Color temperature gradient (warm to cool) - reversed because mireds are inverse
-  const colorTempGradient = 'linear-gradient(to right, #ff9329, #fff5e6, #b3d4ff, #6eb3ff)';
+  // Color temperature gradient (cool to warm) - mireds: 153=cold/blue, 370=warm/orange
+  const colorTempGradient = 'linear-gradient(to right, #6eb3ff, #b3d4ff, #fff5e6, #ff9329)';
 
   return (
     <DeviceCard
