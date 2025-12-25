@@ -6,6 +6,7 @@ import { DimmerCard } from './cards/DimmerCard';
 import { RelayCard } from './cards/RelayCard';
 import { CurtainCard } from './cards/CurtainCard';
 import { RGBLightCard } from './cards/RGBLightCard';
+import { YeelightStripCard } from './cards/YeelightStripCard';
 import { LEDStripCard } from './cards/LEDStripCard';
 import { ButtonCard } from './cards/ButtonCard';
 import { MotionSensorCard } from './cards/MotionSensorCard';
@@ -13,6 +14,7 @@ import { ContactSensorCard } from './cards/ContactSensorCard';
 import { BathroomSensorsCard } from './cards/BathroomSensorsCard';
 import { SingleSwitchCard } from './cards/SingleSwitchCard';
 import { SingleSwitchRightCard } from './cards/SingleSwitchRightCard';
+import { PresenceZonesCard } from './cards/PresenceZonesCard';
 
 interface RoomSectionProps {
   room: RoomConfig;
@@ -55,6 +57,8 @@ function DeviceWrapper({
       return <CurtainCard {...props} />;
     case 'rgb_light':
       return <RGBLightCard {...props} />;
+    case 'yeelight_strip':
+      return <YeelightStripCard {...props} />;
     case 'led_strip':
       return <LEDStripCard {...props} />;
     case 'button':
@@ -67,6 +71,14 @@ function DeviceWrapper({
       return <SwitchCard {...props} isSingleChannel />;
     case 'bathroom_sensors':
       return <BathroomSensorsCard {...props} />;
+    case 'presence_zones':
+      return (
+        <PresenceZonesCard
+          device={device}
+          isConnected={isConnected}
+          onDetailOpen={onDetailOpen}
+        />
+      );
     default:
       return null;
   }

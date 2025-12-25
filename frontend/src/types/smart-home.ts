@@ -14,12 +14,14 @@ export type DeviceType =
   | 'relay'
   | 'curtain'
   | 'rgb_light'
+  | 'yeelight_strip'
   | 'led_strip'
   | 'button'
   | 'motion_sensor'
   | 'contact_sensor'
   | 'plug'
-  | 'bathroom_sensors';
+  | 'bathroom_sensors'
+  | 'presence_zones';
 
 /**
  * Card size configuration for responsive grid layout.
@@ -111,6 +113,26 @@ export interface RGBLightState extends BaseDeviceState {
 }
 
 /**
+ * State for Yeelight Strip8 devices.
+ * Uses mireds for color temperature (153-370) and 0-255 for brightness.
+ */
+export interface YeelightStripState extends BaseDeviceState {
+  state?: 'ON' | 'OFF';
+  brightness?: number; // 0-255
+  color?: RGBColor;
+  color_temp?: number; // 153-370 mireds (6500K-2700K)
+  color_mode?: 'rgb' | 'color_temp';
+}
+
+/**
+ * State for presence zone sensor (Aqara FP2).
+ */
+export interface PresenceZoneState extends BaseDeviceState {
+  occupancy?: boolean;
+  last_seen?: string;
+}
+
+/**
  * State for LED strip devices (2-line).
  */
 export interface LEDStripState extends BaseDeviceState {
@@ -175,11 +197,13 @@ export type DeviceState =
   | RelayState
   | CurtainState
   | RGBLightState
+  | YeelightStripState
   | LEDStripState
   | ButtonState
   | MotionSensorState
   | ContactSensorState
-  | PlugState;
+  | PlugState
+  | PresenceZoneState;
 
 // ============================================
 // Device Configuration Interfaces
@@ -196,6 +220,15 @@ export interface ChannelLabels {
 }
 
 /**
+ * Presence zone configuration for Aqara FP2.
+ */
+export interface PresenceZoneConfig {
+  id: string;
+  name: string;
+  topic: string;
+}
+
+/**
  * Device configuration for the smart home UI.
  */
 export interface DeviceConfig {
@@ -208,6 +241,7 @@ export interface DeviceConfig {
   channelLabels?: ChannelLabels;
   isOffline?: boolean; // For known offline devices
   readOnly?: boolean; // For sensors/buttons
+  presenceZones?: PresenceZoneConfig[]; // For presence_zones type
 }
 
 /**

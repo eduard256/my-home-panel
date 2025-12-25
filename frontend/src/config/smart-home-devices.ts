@@ -125,6 +125,53 @@ export const DEVICES: DeviceConfig[] = [
     roomId: 'eduard-room',
     channelLabels: { left: 'Light' },
   },
+  {
+    id: 'main-eduard-monitor-light',
+    topic: 'yeelight/main-eduard-monitor-light',
+    name: 'Monitor Light',
+    type: 'yeelight_strip',
+    size: '2x1',
+    roomId: 'eduard-room',
+  },
+  {
+    id: 'main-eduard-bed-strip',
+    topic: 'yeelight/main-eduard-bed-strip',
+    name: 'Bed Strip',
+    type: 'yeelight_strip',
+    size: '2x1',
+    roomId: 'eduard-room',
+  },
+  {
+    id: 'main-eduard-room-presence',
+    topic: 'homekit/main-eduard-room-occupation',
+    name: 'Room Presence',
+    type: 'presence_zones',
+    size: '2x1',
+    roomId: 'eduard-room',
+    readOnly: true,
+    presenceZones: [
+      {
+        id: 'bed',
+        name: 'Bed',
+        topic: 'homekit/main-eduard-room-occupation/presence_sensor_3',
+      },
+      {
+        id: 'entrance',
+        name: 'Entrance',
+        topic: 'homekit/main-eduard-room-occupation/presence_sensor_5',
+      },
+      {
+        id: 'desk',
+        name: 'Desk',
+        topic: 'homekit/main-eduard-room-occupation/presence_sensor_2',
+      },
+      {
+        id: 'wardrobe',
+        name: 'Wardrobe',
+        topic: 'homekit/main-eduard-room-occupation/presence_sensor_4',
+      },
+    ],
+  },
 
   // ============================================
   // Kitchen
