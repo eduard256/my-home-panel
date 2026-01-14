@@ -35,6 +35,9 @@ struct ChatView: View {
                         .padding(.horizontal, Spacing.lg)
                         .padding(.vertical, Spacing.md)
                     }
+                    .onTapGesture {
+                        hideKeyboard()
+                    }
                     .onChange(of: chat.messages.count) {
                         if let lastId = chat.messages.last?.id {
                             withAnimation(.smooth) {
@@ -79,6 +82,10 @@ struct ChatView: View {
         }
     }
 
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+
     // MARK: - Input Area
 
     private var inputArea: some View {
@@ -90,16 +97,23 @@ struct ChatView: View {
                 TextField("Message...", text: $inputText, axis: .vertical)
                     .textFieldStyle(AppTextFieldStyle())
                     .lineLimit(1...5)
-                    .disabled(isStreaming)
 
                 Button {
-                    if isStreaming {
-                        stopStreaming()
+                    if inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        // No text - just stop streaming
+                        if isStreaming {
+                            stopStreaming()
+                        }
                     } else {
+                        // Has text - stop current streaming (if any) and send new message
+                        if isStreaming {
+                            stopStreaming()
+                        }
                         sendMessage()
                     }
                 } label: {
-                    Image(systemName: isStreaming ? "stop.fill" : "arrow.up")
+                    // Show stop icon only when streaming AND no text entered
+                    Image(systemName: isStreaming && inputText.isEmpty ? "stop.fill" : "arrow.up")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(Color.bgPrimary)
                         .frame(width: 36, height: 36)
@@ -192,26 +206,23 @@ struct ChatView: View {
         switch event {
         case .text(let text, _):
             if var last = messages.last, last.role == .assistant {
-                last.text += text
+                last.appendText(text)
                 messages[messages.count - 1] = last
                 chat.messages = messages
             }
 
         case .toolCall(let tool):
             if var last = messages.last, last.role == .assistant {
-                last.toolCalls.append(tool)
+                last.addToolCall(tool)
                 messages[messages.count - 1] = last
                 chat.messages = messages
             }
 
         case .toolUpdate(let id, let status, let result):
             if var last = messages.last, last.role == .assistant {
-                if let idx = last.toolCalls.firstIndex(where: { $0.id == id }) {
-                    last.toolCalls[idx].status = status
-                    last.toolCalls[idx].result = result
-                    messages[messages.count - 1] = last
-                    chat.messages = messages
-                }
+                last.updateToolCall(id: id, status: status, result: result)
+                messages[messages.count - 1] = last
+                chat.messages = messages
             }
 
         case .complete(let sessionId):

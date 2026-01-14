@@ -197,43 +197,25 @@ struct DiffHunk: Codable {
     let lines: [String]
 }
 
-// MARK: - Message Content
+// MARK: - Message Content Item
 
-enum MessageContent: Codable {
-    case text(String)
-    case toolCalls([ToolCall])
+struct ContentItem: Identifiable, Codable {
+    let id: UUID
+    let type: ContentType
+    var text: String?
+    var toolCall: ToolCall?
 
-    enum CodingKeys: String, CodingKey {
-        case type
+    enum ContentType: String, Codable {
         case text
-        case toolCalls
+        case tool
     }
 
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let type = try container.decode(String.self, forKey: .type)
-        switch type {
-        case "text":
-            let text = try container.decode(String.self, forKey: .text)
-            self = .text(text)
-        case "toolCalls":
-            let tools = try container.decode([ToolCall].self, forKey: .toolCalls)
-            self = .toolCalls(tools)
-        default:
-            self = .text("")
-        }
+    static func text(_ text: String) -> ContentItem {
+        ContentItem(id: UUID(), type: .text, text: text, toolCall: nil)
     }
 
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        switch self {
-        case .text(let text):
-            try container.encode("text", forKey: .type)
-            try container.encode(text, forKey: .text)
-        case .toolCalls(let tools):
-            try container.encode("toolCalls", forKey: .type)
-            try container.encode(tools, forKey: .toolCalls)
-        }
+    static func tool(_ toolCall: ToolCall) -> ContentItem {
+        ContentItem(id: UUID(), type: .tool, text: nil, toolCall: toolCall)
     }
 }
 
@@ -243,8 +225,7 @@ struct Message: Identifiable, Codable {
     let id: UUID
     let role: MessageRole
     let timestamp: Date
-    var text: String
-    var toolCalls: [ToolCall]
+    var content: [ContentItem]
     var model: AIModel?
     var isStreaming: Bool
 
@@ -252,18 +233,75 @@ struct Message: Identifiable, Codable {
         id: UUID = UUID(),
         role: MessageRole,
         timestamp: Date = Date(),
-        text: String = "",
-        toolCalls: [ToolCall] = [],
+        content: [ContentItem] = [],
         model: AIModel? = nil,
         isStreaming: Bool = false
     ) {
         self.id = id
         self.role = role
         self.timestamp = timestamp
-        self.text = text
-        self.toolCalls = toolCalls
+        self.content = content
         self.model = model
         self.isStreaming = isStreaming
+    }
+
+    // Convenience init for simple text messages
+    init(
+        id: UUID = UUID(),
+        role: MessageRole,
+        timestamp: Date = Date(),
+        text: String,
+        model: AIModel? = nil,
+        isStreaming: Bool = false
+    ) {
+        self.id = id
+        self.role = role
+        self.timestamp = timestamp
+        self.content = text.isEmpty ? [] : [.text(text)]
+        self.model = model
+        self.isStreaming = isStreaming
+    }
+
+    // Computed properties for backwards compatibility
+    var text: String {
+        get {
+            content.compactMap { $0.text }.joined()
+        }
+        set {
+            // Replace all text content with new text
+            content.removeAll { $0.type == .text }
+            if !newValue.isEmpty {
+                content.append(.text(newValue))
+            }
+        }
+    }
+
+    var toolCalls: [ToolCall] {
+        content.compactMap { $0.toolCall }
+    }
+
+    // Helper to append text - only append to last item if it's text, otherwise create new
+    mutating func appendText(_ newText: String) {
+        if let last = content.last, last.type == .text {
+            // Last item is text - append to it
+            content[content.count - 1].text = (content[content.count - 1].text ?? "") + newText
+        } else {
+            // Last item is tool or no items - create new text item
+            content.append(.text(newText))
+        }
+    }
+
+    // Helper to add a tool call
+    mutating func addToolCall(_ tool: ToolCall) {
+        content.append(.tool(tool))
+    }
+
+    // Helper to update a tool call by id
+    mutating func updateToolCall(id: String, status: ToolStatus, result: ToolResult?) {
+        if let idx = content.firstIndex(where: { $0.toolCall?.id == id }) {
+            content[idx].toolCall?.status = status
+            content[idx].toolCall?.result = result
+        }
     }
 }
 

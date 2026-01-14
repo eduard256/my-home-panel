@@ -44,6 +44,7 @@ struct MessageView: View {
 
     private var assistantMessage: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
+
             // Header with time and model
             HStack(spacing: Spacing.sm) {
                 Text(message.timestamp.formatted(date: .omitted, time: .shortened))
@@ -62,18 +63,22 @@ struct MessageView: View {
                 }
             }
 
-            // Timeline with tools
-            if !message.toolCalls.isEmpty {
-                TimelineView(tools: message.toolCalls)
+            // Content in chronological order
+            ForEach(message.content) { item in
+                switch item.type {
+                case .text:
+                    if let text = item.text, !text.isEmpty {
+                        MarkdownView(text: text)
+                    }
+                case .tool:
+                    if let tool = item.toolCall {
+                        ToolRow(tool: tool, isLast: item.id == message.content.last?.id)
+                    }
+                }
             }
 
-            // Text content with Markdown
-            if !message.text.isEmpty {
-                MarkdownView(text: message.text)
-            }
-
-            // Streaming cursor
-            if message.isStreaming && message.text.isEmpty && message.toolCalls.isEmpty {
+            // Streaming cursor when empty
+            if message.isStreaming && message.content.isEmpty {
                 HStack(spacing: 4) {
                     Rectangle()
                         .fill(Color.gold)
@@ -83,20 +88,7 @@ struct MessageView: View {
                 .padding(.leading, Spacing.sm)
             }
         }
-    }
-}
-
-// MARK: - Timeline View
-
-struct TimelineView: View {
-    let tools: [ToolCall]
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(tools) { tool in
-                ToolRow(tool: tool, isLast: tool.id == tools.last?.id)
-            }
-        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -254,24 +246,25 @@ struct PulseModifier: ViewModifier {
 
         MessageView(message: Message(
             role: .assistant,
-            text: "I'll fix that for you.",
-            toolCalls: [
-                ToolCall(
+            content: [
+                .text("Let me check the file first."),
+                .tool(ToolCall(
                     id: "1",
                     type: .read,
                     status: .completed,
                     timestamp: Date(),
                     input: ToolInput(filePath: "src/auth/login.ts"),
                     result: nil
-                ),
-                ToolCall(
+                )),
+                .text("I found the issue. Let me fix it."),
+                .tool(ToolCall(
                     id: "2",
                     type: .edit,
                     status: .running,
                     timestamp: Date(),
                     input: ToolInput(filePath: "src/auth/login.ts"),
                     result: ToolResult(diffAdded: 3, diffRemoved: 1)
-                )
+                ))
             ],
             model: .sonnet
         ))
