@@ -35,7 +35,12 @@ async def mqtt_websocket(websocket: WebSocket):
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
-    await websocket.accept()
+    # Accept with subprotocol if client sent one (needed for Bearer.token auth)
+    protocol = websocket.headers.get("sec-websocket-protocol")
+    if protocol and protocol.startswith("Bearer."):
+        await websocket.accept(subprotocol=protocol)
+    else:
+        await websocket.accept()
     logger.info("MQTT WS proxy: client connected")
 
     settings = get_settings()
