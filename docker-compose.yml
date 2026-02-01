@@ -43,6 +43,8 @@ services:
       - MQTT_API_URL=${MQTT_API_URL}
       - MQTT_API_USER=${MQTT_API_USER}
       - MQTT_API_PASSWORD=${MQTT_API_PASSWORD}
+      # MQTT WebSocket Gateway
+      - MQTT_WS_URL=${MQTT_WS_URL:-ws://host.docker.internal:8082}
       # Automation API
       - AUTOMATION_API_URL=${AUTOMATION_API_URL}
       - AUTOMATION_API_USER=${AUTOMATION_API_USER}
@@ -63,6 +65,8 @@ services:
       - METRICS_RETENTION_THIRTY_MIN=${METRICS_RETENTION_THIRTY_MIN:-2592000}
       - METRICS_RETENTION_HOUR=${METRICS_RETENTION_HOUR:-31536000}
       - TZ=${TZ:-Europe/Moscow}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]

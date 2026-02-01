@@ -11,9 +11,9 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
-from jose import JWTError, jwt
 
-from app.config import get_settings, get_jwt_secret
+from app.config import get_settings
+from app.auth import authenticate_websocket
 from app.services.ai_hub import get_ai_hub_service
 from app.models.ai import ChatRequest
 
@@ -314,43 +314,6 @@ def convert_sse_to_ws_event(sse_data: dict, buffer: SessionBuffer) -> dict | Non
 
     # Add to buffer and return
     return buffer.add_event(event_type, sse_data)
-
-
-# =============================================================================
-# WebSocket Authentication
-# =============================================================================
-
-async def authenticate_websocket(websocket: WebSocket) -> dict | None:
-    """
-    Authenticate WebSocket connection via Authorization header.
-    Returns user payload if valid, None otherwise.
-    """
-    settings = get_settings()
-    jwt_secret = get_jwt_secret()
-
-    # Try Authorization header
-    auth_header = websocket.headers.get("authorization")
-    if not auth_header:
-        # Try Sec-WebSocket-Protocol for token (fallback for browsers)
-        protocol = websocket.headers.get("sec-websocket-protocol")
-        if protocol and protocol.startswith("Bearer."):
-            auth_header = f"Bearer {protocol[7:]}"
-
-    if not auth_header or not auth_header.startswith("Bearer "):
-        return None
-
-    token = auth_header[7:]
-
-    try:
-        payload = jwt.decode(
-            token,
-            jwt_secret,
-            algorithms=[settings.JWT_ALGORITHM]
-        )
-        return payload
-    except JWTError as e:
-        logger.debug(f"WebSocket JWT verification failed: {e}")
-        return None
 
 
 # =============================================================================

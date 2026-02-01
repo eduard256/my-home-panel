@@ -27,7 +27,7 @@ from app.tasks.scheduler import start_scheduler, stop_scheduler
 from app.tasks.mqtt_tracker import start_mqtt_tracker, stop_mqtt_tracker
 
 # Import routers
-from app.routers import auth, proxmox, frigate, mqtt, automations, ai, ai_ws, metrics
+from app.routers import auth, proxmox, frigate, mqtt, mqtt_ws, automations, ai, ai_ws, metrics
 
 # Configure logging
 logging.basicConfig(
@@ -173,6 +173,7 @@ app.include_router(auth.router)
 app.include_router(proxmox.router)
 app.include_router(frigate.router)
 app.include_router(mqtt.router)
+app.include_router(mqtt_ws.router)
 app.include_router(automations.router)
 app.include_router(ai.router)
 app.include_router(ai_ws.router)

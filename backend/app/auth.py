@@ -6,7 +6,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, WebSocket, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 
@@ -169,3 +169,29 @@ def optional_auth(
 
 
 OptionalUser = Annotated[dict | None, Depends(optional_auth)]
+
+
+async def authenticate_websocket(websocket: WebSocket) -> dict | None:
+    """
+    Authenticate WebSocket connection via JWT.
+
+    Checks in order:
+        1. Authorization header: "Bearer <jwt>"
+        2. Sec-WebSocket-Protocol header: "Bearer.<jwt>" (browser fallback)
+
+    Returns:
+        Decoded JWT payload if valid, None otherwise.
+    """
+    # Try Authorization header
+    auth_header = websocket.headers.get("authorization")
+    if not auth_header:
+        # Try Sec-WebSocket-Protocol for token (fallback for browsers)
+        protocol = websocket.headers.get("sec-websocket-protocol")
+        if protocol and protocol.startswith("Bearer."):
+            auth_header = f"Bearer {protocol[7:]}"
+
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return None
+
+    token = auth_header[7:]
+    return verify_jwt(token)

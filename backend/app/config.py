@@ -56,6 +56,9 @@ class Settings(BaseSettings):
     MQTT_API_USER: str = "admin"
     MQTT_API_PASSWORD: str = ""
 
+    # === MQTT WebSocket Gateway ===
+    MQTT_WS_URL: str = "ws://host.docker.internal:8082"
+
     # === Automation API ===
     AUTOMATION_API_URL: str = "http://10.0.20.102:8080"
     AUTOMATION_API_USER: str = "admin"
