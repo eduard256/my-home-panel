@@ -17,13 +17,14 @@ import { toast } from 'sonner';
  */
 function transformAutomation(raw: AutomationAPIResponse): Automation {
   // Extract room from automation_name (e.g., "main/vadim-bedroom/bed-light" -> "main/vadim-bedroom")
-  const nameParts = raw.automation_name.split('/');
+  const name = raw.automation_name || raw.container_name;
+  const nameParts = name.split('/');
   const room = nameParts.length > 1
     ? nameParts.slice(0, -1).join('/')
     : 'Other';
 
   return {
-    name: raw.automation_name,
+    name,
     container_name: raw.container_name,
     description: raw.mqtt?.ready?.description || null,
     room,

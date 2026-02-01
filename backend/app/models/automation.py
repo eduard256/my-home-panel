@@ -50,7 +50,7 @@ class HealthInfo(BaseModel):
 class AutomationInfo(BaseModel):
     """Full automation information."""
     container_name: str
-    automation_name: str | None = None
+    automation_name: str
     container: ContainerInfo
     mqtt: MQTTInfo | None = None
     health: HealthInfo

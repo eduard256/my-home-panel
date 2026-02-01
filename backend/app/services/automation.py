@@ -257,7 +257,7 @@ class AutomationService:
 
             automations.append(AutomationInfo(
                 container_name=auto.get("container_name", ""),
-                automation_name=auto.get("automation_name", ""),
+                automation_name=auto.get("automation_name") or auto.get("container_name", ""),
                 container=container,
                 mqtt=mqtt_info,
                 health=health
