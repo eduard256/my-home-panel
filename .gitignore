@@ -1,5 +1,6 @@
 # Environment
 .env
+.env.coolify
 
 # Database
 data/
@@ -20,6 +21,9 @@ venv/
 dist/
 build/
 
+# Node.js
+node_modules/
+
 # IDE
 .vscode/
 .idea/
@@ -30,3 +34,6 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local docs
+DEPLOY.md
