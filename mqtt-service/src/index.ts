@@ -27,6 +27,7 @@ const mqttClient = new MqttClient((topic, payload) => {
 
 // WS server: publish requests go through MQTT client
 const wsServer = new WsServer(
+  config.ws.host,
   config.ws.port,
   cache,
   (topic, payload) => mqttClient.publish(topic, payload),
@@ -37,7 +38,7 @@ mqttClient.connect();
 
 console.log(`[Gateway] MQTT WebSocket Gateway started`);
 console.log(`[Gateway] MQTT: ${config.mqtt.broker}:${config.mqtt.port}`);
-console.log(`[Gateway] WS:   port ${config.ws.port}`);
+console.log(`[Gateway] WS:   ${config.ws.host}:${config.ws.port}`);
 console.log(`[Gateway] Cache will populate from MQTT retain messages`);
 
 // Graceful shutdown

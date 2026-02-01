@@ -10,6 +10,7 @@ export const config = {
     password: process.env.MQTT_PASSWORD ?? '',
   },
   ws: {
+    host: process.env.WS_HOST ?? '127.0.0.1',
     port: parseInt(process.env.WS_PORT ?? '8082', 10),
   },
   logLevel: process.env.LOG_LEVEL ?? 'info',

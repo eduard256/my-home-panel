@@ -32,11 +32,11 @@ export class WsServer {
   private onPublish: PublishHandler;
   private pingInterval: ReturnType<typeof setInterval> | null = null;
 
-  constructor(port: number, cache: Cache, onPublish: PublishHandler) {
+  constructor(host: string, port: number, cache: Cache, onPublish: PublishHandler) {
     this.cache = cache;
     this.onPublish = onPublish;
 
-    this.wss = new WebSocketServer({ port });
+    this.wss = new WebSocketServer({ host, port });
 
     this.wss.on('connection', (ws: WebSocket) => {
       const client = ws as AliveWebSocket;
@@ -85,7 +85,7 @@ export class WsServer {
       }
     }, 30_000);
 
-    console.log(`[WS] Server listening on port ${port}`);
+    console.log(`[WS] Server listening on ${host}:${port}`);
   }
 
   /** Handle incoming message from a WebSocket client. */

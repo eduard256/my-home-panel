@@ -4,13 +4,13 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: mqtt-ws-gateway
-    ports:
-      - "8082:8082"
+    network_mode: host
     environment:
       - MQTT_BROKER=${MQTT_BROKER:-localhost}
       - MQTT_PORT=${MQTT_PORT:-1883}
       - MQTT_USER=${MQTT_USER:-}
       - MQTT_PASSWORD=${MQTT_PASSWORD:-}
+      - WS_HOST=127.0.0.1
       - WS_PORT=8082
       - LOG_LEVEL=${LOG_LEVEL:-info}
     restart: unless-stopped
