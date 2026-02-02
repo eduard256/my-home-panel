@@ -54,7 +54,7 @@ export const CAMERAS: CameraConfig[] = [
 // ============================================
 
 /** Snapshot refresh interval in idle mode (ms) */
-export const SNAPSHOT_IDLE_INTERVAL = 2000;
+export const SNAPSHOT_IDLE_INTERVAL = 1000;
 
 /** Snapshot refresh interval during motion (ms) — ~5 FPS */
 export const SNAPSHOT_MOTION_INTERVAL = 200;

@@ -83,6 +83,11 @@ export const CameraCell = memo(function CameraCell({
 
   // Snapshot refresh: faster during motion, slower otherwise
   const snapshotInterval = debouncedMotion ? SNAPSHOT_MOTION_INTERVAL : SNAPSHOT_IDLE_INTERVAL;
+
+  // Debug: log interval changes
+  useEffect(() => {
+    console.log(`[CamerasNew] ${camera.frigateName}: interval=${snapshotInterval}ms, motion=${motionActive}, debouncedMotion=${debouncedMotion}, mseEnabled=${mseEnabled}, mseReady=${mseReady}`);
+  }, [snapshotInterval, motionActive, debouncedMotion, mseEnabled, mseReady, camera.frigateName]);
   const { snapshotUrl, containerRef } = useSnapshotRefresh({
     frigateName: camera.frigateName,
     token: token ?? '',
