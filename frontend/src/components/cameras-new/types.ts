@@ -28,17 +28,12 @@ export interface CameraConfig {
  * label:       Human-readable display name
  */
 export const CAMERAS: CameraConfig[] = [
-  // Birdseye — combined view, 2x2 cells
-  { stream: 'birdseye', frigateName: 'birdseye', label: 'Birdseye', large: true },
-
   // IP Cameras (sub streams for grid, main for expanded)
   { stream: '10_0_20_111_sub', frigateName: 'cam-main-gate', label: 'Main Gate', large: true },
   { stream: '10_0_20_116_main', frigateName: 'cam-doorbell', label: 'Doorbell' },
   { stream: '10_0_20_118_sub', frigateName: 'cam-summer-kitchen', label: 'Summer Kitchen' },
   { stream: '10_0_20_119_sub', frigateName: 'cam-yard-entrance', label: 'Yard Entrance' },
   { stream: '10_0_20_120_sub', frigateName: 'cam-house-entrance', label: 'House Entrance' },
-  { stream: '10_0_20_122_sub', frigateName: 'cam-professional-kitchen', label: 'Pro Kitchen' },
-  { stream: '10_0_20_123_sub', frigateName: 'cam-staff-house-entrance', label: 'Staff House' },
 
   // NVR Channels (no sub streams available — single stream only)
   { stream: 'zosi_nvr_1', frigateName: 'cam-main-terrace', label: 'Main Terrace' },
