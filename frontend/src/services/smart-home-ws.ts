@@ -146,11 +146,12 @@ class SmartHomeWsManager {
     this.deviceCache.set(topic, optimisticState);
     this.notifySubscribers(topic, optimisticState);
 
-    // Send via WebSocket
+    // Send via WebSocket — Zigbee2MQTT requires /set suffix for commands
+    const publishTopic = `${topic}/set`;
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify({
         type: 'publish',
-        topic,
+        topic: publishTopic,
         payload,
       }));
     }
