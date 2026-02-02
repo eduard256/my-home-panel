@@ -11,11 +11,14 @@ import { DetailPanel } from '@/components/sections/DetailPanel';
 import { AIChatPanel } from '@/components/ai-chat';
 import { Button } from '@/components/ui/button';
 import { getCategoryById } from '@/config/categories';
+import { useSmartHomeConnection } from '@/hooks/useSmartHomeWS';
 
 /**
  * MainLayout - Three-block layout with animations
  */
 export function MainLayout() {
+  // Global MQTT WebSocket connection — stays alive while user is authenticated
+  useSmartHomeConnection();
   const {
     currentCategory,
     block3State,

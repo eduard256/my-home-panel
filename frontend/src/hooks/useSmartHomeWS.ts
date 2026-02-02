@@ -24,12 +24,13 @@ export function useSmartHomeConnection() {
     // Subscribe to connection status changes
     const unsub = smartHomeWs.onConnectionChange(setConnectionStatus);
 
-    // Connect with token getter
+    // Ensure connected (idempotent — won't duplicate if already connected)
     smartHomeWs.connect(() => useAuthStore.getState().token);
 
     return () => {
       unsub();
-      smartHomeWs.disconnect();
+      // Don't disconnect here — connection is managed globally by MainLayout.
+      // Multiple components may share the same WS connection.
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
