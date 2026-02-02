@@ -38,18 +38,10 @@ export const CATEGORIES: Category[] = [
     aiEnabled: true,
   },
   {
-    id: 'assistant',
-    name: 'Assistant',
-    icon: 'MessageSquare',
-    order: 6,
-    aiEnabled: true,
-    aiOnly: true,
-  },
-  {
     id: 'ai',
     name: 'AI',
     icon: 'Bot',
-    order: 7,
+    order: 6,
     aiEnabled: true,
   },
 ];
