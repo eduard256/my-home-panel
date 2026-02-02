@@ -134,28 +134,28 @@ function SuggestionCard({
 
 const SUGGESTIONS = [
   {
-    label: 'Home Panel',
-    description: 'Explore the home panel project',
-    prompt: 'Show me the project structure, explain the architecture and key components.',
-    cwd: '/home/user/my-home-panel',
-  },
-  {
-    label: 'Servers',
-    description: 'Proxmox server management',
-    prompt: 'Check the current status of all servers, show CPU/RAM/disk usage and any issues.',
+    label: 'Server PVE-1',
+    description: 'Check status of 10.0.10.10',
+    prompt: 'Check the current status of Proxmox server 10.0.10.10 — show CPU, RAM, disk usage, uptime, running VMs/CTs and any potential issues.',
     cwd: '/home/user/servers',
   },
   {
-    label: 'Smart Home',
-    description: 'Zigbee2MQTT devices',
-    prompt: 'Show status of all smart home devices, check for offline devices and low batteries.',
-    cwd: '/home/user/smarthome',
+    label: 'Server PVE-2',
+    description: 'Check status of 10.0.20.10',
+    prompt: 'Check the current status of Proxmox server 10.0.20.10 — show CPU, RAM, disk usage, uptime, running VMs/CTs and any potential issues.',
+    cwd: '/home/user/servers',
   },
   {
     label: 'Automations',
-    description: 'Docker automation containers',
-    prompt: 'Check all automation containers status, show recent errors and triggers.',
+    description: 'Check automation containers',
+    prompt: 'Check the status of all automation containers — show which are running, stopped, any errors in logs, recent triggers and MQTT connectivity.',
     cwd: '/home/user/automation',
+  },
+  {
+    label: 'VMs & Containers',
+    description: 'Check all VPS/CT status',
+    prompt: 'Check the status of all virtual machines and LXC containers across all Proxmox nodes — show running/stopped, CPU/RAM usage, and any issues.',
+    cwd: '/home/user/servers',
   },
 ];
 
