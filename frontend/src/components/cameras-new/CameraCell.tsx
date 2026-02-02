@@ -85,8 +85,9 @@ export const CameraCell = memo(function CameraCell({
   const snapshotInterval = debouncedMotion ? SNAPSHOT_MOTION_INTERVAL : SNAPSHOT_IDLE_INTERVAL;
   const { snapshotUrl, containerRef } = useSnapshotRefresh({
     frigateName: camera.frigateName,
+    token: token ?? '',
     interval: snapshotInterval,
-    enabled: !mseReady, // Stop refreshing JPEG once MSE is playing
+    enabled: !mseReady && !!token, // Stop refreshing JPEG once MSE is playing
   });
 
   const handleMseReady = useCallback(() => {

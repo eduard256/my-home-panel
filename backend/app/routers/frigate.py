@@ -19,7 +19,7 @@ import httpx
 from fastapi import APIRouter, HTTPException, status, Query, Response, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 
-from app.auth import CurrentUser, OptionalUser, verify_jwt
+from app.auth import CurrentUser, CurrentUserOrToken, OptionalUser, verify_jwt
 from app.config import get_settings
 from app.services.frigate import get_frigate_service
 from app.models.frigate import (
@@ -45,7 +45,7 @@ async def get_cameras(user: CurrentUser) -> CameraListResponse:
 @router.get("/cameras/{camera_name}/snapshot")
 async def get_camera_snapshot(
     camera_name: str,
-    user: CurrentUser,
+    user: CurrentUserOrToken,
     quality: int = Query(default=70, ge=1, le=100, description="JPEG quality"),
     height: int | None = Query(default=None, description="Resize to this height")
 ) -> Response:

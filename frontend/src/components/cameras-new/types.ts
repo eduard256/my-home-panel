@@ -77,10 +77,11 @@ export function getMotionTopic(frigateName: string): string {
 
 /**
  * Build snapshot URL for a Frigate camera.
- * Uses cache-busting timestamp query param for forced refresh.
+ * Includes JWT token for auth (img tags can't send Authorization headers)
+ * and a cache-busting timestamp for forced refresh.
  */
-export function buildSnapshotUrl(frigateName: string, cacheBuster: number): string {
-  return `/api/frigate/cameras/${frigateName}/snapshot?quality=50&height=360&t=${cacheBuster}`;
+export function buildSnapshotUrl(frigateName: string, cacheBuster: number, token: string): string {
+  return `/api/frigate/cameras/${frigateName}/snapshot?quality=50&height=360&token=${encodeURIComponent(token)}&t=${cacheBuster}`;
 }
 
 /**

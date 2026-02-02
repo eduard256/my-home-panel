@@ -48,7 +48,7 @@ export function ExpandedView({ camera }: ExpandedViewProps) {
     >
       {/* JPEG Placeholder — shown immediately */}
       <img
-        src={buildSnapshotUrl(camera.frigateName, Date.now())}
+        src={buildSnapshotUrl(camera.frigateName, Date.now(), token ?? '')}
         alt={camera.label}
         className="absolute inset-0 w-full h-full object-contain"
         draggable={false}

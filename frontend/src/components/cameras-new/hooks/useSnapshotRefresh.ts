@@ -12,6 +12,8 @@ import { buildSnapshotUrl } from '../types';
 interface UseSnapshotRefreshOptions {
   /** Frigate camera name */
   frigateName: string;
+  /** JWT auth token */
+  token: string;
   /** Refresh interval in ms */
   interval: number;
   /** Whether refreshing is enabled */
@@ -27,6 +29,7 @@ interface UseSnapshotRefreshResult {
 
 export function useSnapshotRefresh({
   frigateName,
+  token,
   interval,
   enabled,
 }: UseSnapshotRefreshOptions): UseSnapshotRefreshResult {
@@ -89,7 +92,7 @@ export function useSnapshotRefresh({
   }, []);
 
   return {
-    snapshotUrl: buildSnapshotUrl(frigateName, cacheBuster),
+    snapshotUrl: buildSnapshotUrl(frigateName, cacheBuster, token),
     containerRef,
   };
 }
