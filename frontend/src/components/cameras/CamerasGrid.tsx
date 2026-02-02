@@ -1,20 +1,20 @@
 /**
- * CamerasGrid - Orchestrated Camera Grid with Staged Connection
+ * @deprecated Legacy Camera Grid Component
  *
+ * This component is part of the original camera streaming implementation and is
+ * now considered deprecated. It is retained solely for backward compatibility
+ * while the new camera system is being developed from scratch.
+ *
+ * Do not extend or build upon this code — all new camera functionality should
+ * be implemented in the replacement module once it is available.
+ *
+ * ---
+ * Original description:
  * Manages multiple camera connections with intelligent staging:
  * - Cameras connect one by one, waiting for each to succeed
  * - Failed cameras are skipped, connection continues to next
  * - Responsive grid layout (desktop grid, mobile scroll)
  * - Birdseye camera takes 2x2 cells
- *
- * Connection Strategy:
- * ```
- * Camera 0 enabled → wait for connected/failed
- *                         ↓
- * Camera 1 enabled → wait for connected/failed
- *                         ↓
- * Camera 2 enabled → ...
- * ```
  */
 
 import { useState, useCallback } from 'react';

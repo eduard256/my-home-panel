@@ -1,5 +1,15 @@
 """
-Frigate router.
+DEPRECATED — Legacy Frigate Router
+
+This module is part of the original camera and Frigate integration and is now
+considered deprecated. It is retained solely for backward compatibility while
+the new camera system is being developed from scratch.
+
+Do not extend or build upon this code — all new camera functionality should be
+implemented in the replacement module once it is available.
+
+---
+Original description:
 Handles camera snapshots, events, and stats.
 Also proxies go2rtc WebRTC streaming with authentication.
 """

@@ -24,6 +24,14 @@ export const CATEGORIES: Category[] = [
     customLayout: true,
   },
   {
+    id: 'cameras-new',
+    name: 'Cameras New',
+    icon: 'Camera',
+    order: 3.5,
+    aiEnabled: false,
+    customLayout: true,
+  },
+  {
     id: 'automations',
     name: 'Automations',
     icon: 'Zap',

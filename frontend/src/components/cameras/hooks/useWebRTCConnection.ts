@@ -1,27 +1,17 @@
 /**
- * useWebRTCConnection - WebRTC Connection State Machine
+ * @deprecated Legacy WebRTC Connection Hook
  *
- * A clean, predictable hook for managing WebRTC connections to go2rtc streams.
+ * This hook is part of the original camera streaming implementation and is
+ * now considered deprecated. It is retained solely for backward compatibility
+ * while the new camera system is being developed from scratch.
  *
- * Features:
- * - State machine with clear transitions
- * - Exponential backoff for retries
- * - Max attempts before failure
- * - Visibility-based pause (tab hidden)
- * - Clean resource cleanup
+ * Do not extend or build upon this code — all new camera functionality should
+ * be implemented in the replacement module once it is available.
  *
- * State Machine:
- * ```
- * IDLE ──enable──> CONNECTING ──success──> CONNECTED
- *                      │                       │
- *                      │ error                 │ disconnect
- *                      ▼                       ▼
- *                  RETRYING ◄─────────────────┘
- *                      │
- *                      │ max attempts
- *                      ▼
- *                   FAILED
- * ```
+ * ---
+ * Original description:
+ * A clean, predictable hook for managing WebRTC connections to go2rtc streams
+ * with state machine transitions, exponential backoff, and visibility-based pause.
  */
 
 import { useEffect, useRef, useCallback, useState } from 'react';

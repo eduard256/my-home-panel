@@ -6,6 +6,7 @@ import { AssistantSection } from './AssistantSection';
 import { SmartHomeSection } from '@/components/smart-home';
 import { SmartHomeNewSection } from '@/components/smart-home-new';
 import { CamerasSection } from '@/components/cameras';
+import { CamerasNewSection } from '@/components/cameras-new';
 
 /**
  * ContentSection - Routes to the appropriate section based on current category
@@ -20,6 +21,8 @@ export function ContentSection() {
       return <VMsSection />;
     case 'cameras':
       return <CamerasSection />;
+    case 'cameras-new':
+      return <CamerasNewSection />;
     case 'automations':
       return <AutomationsSection />;
     case 'devices':

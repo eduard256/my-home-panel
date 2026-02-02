@@ -1,6 +1,15 @@
 /**
- * Camera Types and Configuration
+ * @deprecated Legacy Camera Types and Configuration
  *
+ * This module is part of the original camera streaming implementation and is
+ * now considered deprecated. It is retained solely for backward compatibility
+ * while the new camera system is being developed from scratch.
+ *
+ * Do not extend or build upon this code — all new camera functionality should
+ * be implemented in the replacement module once it is available.
+ *
+ * ---
+ * Original description:
  * Central configuration for all camera streams.
  * Uses go2rtc stream names that match Frigate/go2rtc configuration.
  */

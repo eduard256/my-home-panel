@@ -1,15 +1,17 @@
 /**
- * WebRTCPlayer - Individual Camera Player Component
+ * @deprecated Legacy WebRTC Player Component
  *
+ * This component is part of the original camera streaming implementation and is
+ * now considered deprecated. It is retained solely for backward compatibility
+ * while the new camera system is being developed from scratch.
+ *
+ * Do not extend or build upon this code — all new camera functionality should
+ * be implemented in the replacement module once it is available.
+ *
+ * ---
+ * Original description:
  * Displays a single camera stream with status indicators.
  * Uses useWebRTCConnection hook for state machine-based connection management.
- *
- * Features:
- * - Clean video display
- * - Connection status overlay
- * - Retry/error states with user feedback
- * - Fullscreen button on hover
- * - Minimal UI - only shows info on hover
  */
 
 import { memo } from 'react';
