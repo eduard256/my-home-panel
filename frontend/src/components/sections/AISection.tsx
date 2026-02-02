@@ -174,7 +174,7 @@ export function AISection() {
   const [cwd, setCwd] = useState(getAICustomCwd);
   const [isFocused, setIsFocused] = useState(false);
 
-  const { sessions, clearSession } = useAIChatStore();
+  const { sessions, clearSession, sendMessage } = useAIChatStore();
   const { openAI } = useNavigationStore();
 
   const session = sessions.ai;
@@ -195,9 +195,9 @@ export function AISection() {
   const handleSuggestionClick = useCallback(
     (prompt: string) => {
       openAI();
-      sessionStorage.setItem('pending_ai_prompt', prompt);
+      sendMessage('ai', prompt);
     },
-    [openAI]
+    [openAI, sendMessage]
   );
 
   return (
