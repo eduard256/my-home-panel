@@ -393,7 +393,7 @@ export function AISection() {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-500/10" />
             <div className="relative p-8 text-center">
-              <div className="flex justify-center mb-4">
+              <div className="flex justify-center">
                 <div className="relative">
                   <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
                   <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-primary/20 border border-primary/30">
@@ -401,10 +401,6 @@ export function AISection() {
                   </div>
                 </div>
               </div>
-              <p className="text-sm text-white/50 max-w-xs mx-auto leading-relaxed">
-                Set your working directory above and use the chat panel to interact with Claude Code.
-                AI will execute commands in the specified path.
-              </p>
             </div>
           </motion.div>
         </div>
