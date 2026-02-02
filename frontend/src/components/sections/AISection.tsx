@@ -95,11 +95,13 @@ function StatCard({
 function SuggestionCard({
   label,
   description,
+  cwd,
   onClick,
   delay,
 }: {
   label: string;
   description: string;
+  cwd: string;
   onClick: () => void;
   delay: number;
 }) {
@@ -117,10 +119,14 @@ function SuggestionCard({
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors flex-shrink-0">
           <Sparkles className="h-4 w-4 text-primary/70" />
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-white">{label}</p>
           <p className="text-xs text-muted truncate">{description}</p>
         </div>
+      </div>
+      <div className="mt-2 ml-11 flex items-center gap-1.5 text-[10px] text-white/25 font-mono">
+        <FolderOpen className="h-3 w-3" />
+        <span>{cwd}</span>
       </div>
     </motion.button>
   );
@@ -128,24 +134,28 @@ function SuggestionCard({
 
 const SUGGESTIONS = [
   {
-    label: 'Explore directory',
-    description: 'List files and show structure',
-    prompt: 'Show me the directory structure and key files here.',
+    label: 'Home Panel',
+    description: 'Explore the home panel project',
+    prompt: 'Show me the project structure, explain the architecture and key components.',
+    cwd: '/home/user/my-home-panel',
   },
   {
-    label: 'Find issues',
-    description: 'Analyze code for problems',
-    prompt: 'Analyze this project for potential issues, bugs, or improvements.',
+    label: 'Servers',
+    description: 'Proxmox server management',
+    prompt: 'Check the current status of all servers, show CPU/RAM/disk usage and any issues.',
+    cwd: '/home/user/servers',
   },
   {
-    label: 'Explain codebase',
-    description: 'Understand project architecture',
-    prompt: 'Explain the architecture and structure of this project.',
+    label: 'Smart Home',
+    description: 'Zigbee2MQTT devices',
+    prompt: 'Show status of all smart home devices, check for offline devices and low batteries.',
+    cwd: '/home/user/smarthome',
   },
   {
-    label: 'Run commands',
-    description: 'Execute shell commands',
-    prompt: 'What commands can I run to build/test this project?',
+    label: 'Automations',
+    description: 'Docker automation containers',
+    prompt: 'Check all automation containers status, show recent errors and triggers.',
+    cwd: '/home/user/automation',
   },
 ];
 
@@ -193,11 +203,20 @@ export function AISection() {
   }, [clearSession]);
 
   const handleSuggestionClick = useCallback(
-    (prompt: string) => {
+    (prompt: string, suggestionCwd: string) => {
+      // Set the working directory
+      setCwd(suggestionCwd);
+      setAICustomCwd(suggestionCwd);
+      // Clear session (new chat)
+      clearSession('ai');
+      // Open chat panel and send message
       openAI();
-      sendMessage('ai', prompt);
+      // Small delay to let clearSession propagate before sending
+      setTimeout(() => {
+        sendMessage('ai', prompt);
+      }, 50);
     },
-    [openAI, sendMessage]
+    [openAI, sendMessage, clearSession]
   );
 
   return (
@@ -357,7 +376,8 @@ export function AISection() {
                   key={suggestion.label}
                   label={suggestion.label}
                   description={suggestion.description}
-                  onClick={() => handleSuggestionClick(suggestion.prompt)}
+                  cwd={suggestion.cwd}
+                  onClick={() => handleSuggestionClick(suggestion.prompt, suggestion.cwd)}
                   delay={0.1 + index * 0.05}
                 />
               ))}
