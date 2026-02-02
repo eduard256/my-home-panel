@@ -32,9 +32,6 @@ class SmartHomeWsManager {
   private subscribers = new Map<string, Set<SubscriberCallback>>();
   private connectionListeners = new Set<ConnectionListener>();
 
-  /** Optimistic state: stores pre-publish state for rollback on failure */
-  private optimisticPrevState = new Map<string, DeviceState | undefined>();
-
   /** Reconnection state */
   private reconnectDelay = INITIAL_RECONNECT_DELAY;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
@@ -138,25 +135,18 @@ class SmartHomeWsManager {
    * Applies optimistic update immediately, rolls back on failure.
    */
   publish(topic: string, payload: PublishPayload): void {
-    // Apply optimistic update: merge payload into current state
-    const currentState = this.deviceCache.get(topic);
-    this.optimisticPrevState.set(topic, currentState ? { ...currentState } : undefined);
-
-    const optimisticState = { ...(currentState || {}), ...payload } as DeviceState;
-    this.deviceCache.set(topic, optimisticState);
-    this.notifySubscribers(topic, optimisticState);
-
     // Send via WebSocket — Zigbee2MQTT requires /set suffix for commands
     const publishTopic = `${topic}/set`;
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      console.log(`[SmartHomeWS] Publishing to ${publishTopic}`, payload);
       this.ws.send(JSON.stringify({
         type: 'publish',
         topic: publishTopic,
         payload,
       }));
+    } else {
+      console.warn(`[SmartHomeWS] Cannot publish: WS not open (readyState=${this.ws?.readyState})`);
     }
-    // If WS is not open, optimistic update stays but no command sent.
-    // The real state will be restored on next init/update from gateway.
   }
 
   /**
@@ -226,21 +216,17 @@ class SmartHomeWsManager {
 
       switch (msg.type) {
         case 'init':
+          console.log(`[SmartHomeWS] Init received: ${Object.keys(msg.devices).length} topics`);
           this.handleInit(msg.devices);
           break;
 
         case 'update':
+          console.log(`[SmartHomeWS] Update: ${msg.topic}`, msg.payload);
           this.handleUpdate(msg.topic, msg.payload as DeviceState);
           break;
 
         case 'publish_result':
-          if (!msg.success) {
-            this.handlePublishFailure(msg.topic);
-          }
-          // On success: clear optimistic prev state, real update will come via 'update'
-          if (msg.success) {
-            this.optimisticPrevState.delete(msg.topic);
-          }
+          console.log(`[SmartHomeWS] Publish result: ${msg.topic} success=${msg.success}`);
           break;
       }
     } catch (err) {
@@ -251,7 +237,6 @@ class SmartHomeWsManager {
   /** Handle init: replace entire cache and notify all subscribers. */
   private handleInit(devices: Record<string, unknown>): void {
     this.deviceCache.clear();
-    this.optimisticPrevState.clear();
 
     for (const [topic, state] of Object.entries(devices)) {
       this.deviceCache.set(topic, state as DeviceState);
@@ -270,28 +255,11 @@ class SmartHomeWsManager {
 
   /** Handle update: merge into cache and notify subscribers for that topic. */
   private handleUpdate(topic: string, payload: DeviceState): void {
-    // Clear optimistic prev state — real data arrived
-    this.optimisticPrevState.delete(topic);
-
     // Merge with existing state (gateway sends partial updates)
     const existing = this.deviceCache.get(topic);
     const merged = existing ? { ...existing, ...payload } : payload;
     this.deviceCache.set(topic, merged);
     this.notifySubscribers(topic, merged);
-  }
-
-  /** Handle publish failure: rollback optimistic update. */
-  private handlePublishFailure(topic: string): void {
-    const prevState = this.optimisticPrevState.get(topic);
-    this.optimisticPrevState.delete(topic);
-
-    if (prevState !== undefined) {
-      this.deviceCache.set(topic, prevState);
-      this.notifySubscribers(topic, prevState);
-    } else {
-      // No previous state — remove from cache
-      this.deviceCache.delete(topic);
-    }
   }
 
   private notifySubscribers(topic: string, state: DeviceState): void {
