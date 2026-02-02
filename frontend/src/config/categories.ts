@@ -38,6 +38,13 @@ export const CATEGORIES: Category[] = [
     aiEnabled: false,
   },
   {
+    id: 'devices-new',
+    name: 'Smart Home New',
+    icon: 'Home',
+    order: 6,
+    aiEnabled: true,
+  },
+  {
     id: 'assistant',
     name: 'Assistant',
     icon: 'MessageSquare',

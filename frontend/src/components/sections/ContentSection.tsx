@@ -4,6 +4,7 @@ import { VMsSection } from './VMsSection';
 import { AutomationsSection } from './AutomationsSection';
 import { AssistantSection } from './AssistantSection';
 import { SmartHomeSection } from '@/components/smart-home';
+import { SmartHomeNewSection } from '@/components/smart-home-new';
 import { CamerasSection } from '@/components/cameras';
 
 /**
@@ -23,6 +24,8 @@ export function ContentSection() {
       return <AutomationsSection />;
     case 'devices':
       return <SmartHomeSection />;
+    case 'devices-new':
+      return <SmartHomeNewSection />;
     case 'assistant':
       return <AssistantSection />;
     default:
