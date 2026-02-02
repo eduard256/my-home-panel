@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Lightbulb, PlugsConnected } from '@phosphor-icons/react';
+import { Lightbulb } from '@phosphor-icons/react';
 import { DeviceCard } from '../DeviceCard';
 import type { DeviceCardProps, SwitchState } from '@/types/smart-home-new';
 

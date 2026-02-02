@@ -5,7 +5,7 @@
  * useDevice(topic) — subscribes to a device topic, returns state + publish + connection info
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { smartHomeWs } from '@/services/smart-home-ws';
 import { useAuthStore } from '@/stores/authStore';
 import type { ConnectionStatus, DeviceState, PublishPayload } from '@/types/smart-home-new';
@@ -20,8 +20,6 @@ export function useSmartHomeConnection() {
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>(
     smartHomeWs.getStatus()
   );
-  const token = useAuthStore((s) => s.token);
-
   useEffect(() => {
     // Subscribe to connection status changes
     const unsub = smartHomeWs.onConnectionChange(setConnectionStatus);

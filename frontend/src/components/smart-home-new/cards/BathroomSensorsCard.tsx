@@ -34,7 +34,7 @@ export function BathroomSensorsCard({
   device,
 }: DeviceCardProps) {
   // Subscribe to both sensors directly
-  const { state: motionState, isConnected } = useDevice('zigbee2mqtt/main-wc1-room-motion_sensor');
+  const { state: motionState } = useDevice('zigbee2mqtt/main-wc1-room-motion_sensor');
   const { state: doorState } = useDevice('zigbee2mqtt/main-wc1-door-contact_sensor');
 
   const motion_data = motionState as MotionSensorState | null;
