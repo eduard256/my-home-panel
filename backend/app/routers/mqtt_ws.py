@@ -48,7 +48,10 @@ async def mqtt_websocket(websocket: WebSocket):
 
     try:
         # Connect to upstream gateway
-        gateway_ws = await websockets.connect(settings.MQTT_WS_URL)
+        gateway_ws = await websockets.connect(
+            settings.MQTT_WS_URL,
+            max_size=None,  # No limit — init cache can be very large
+        )
         logger.info(f"MQTT WS proxy: connected to gateway {settings.MQTT_WS_URL}")
 
         async def client_to_gateway():
