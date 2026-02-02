@@ -58,19 +58,19 @@ async def mqtt_websocket(websocket: WebSocket):
                     data = await websocket.receive_text()
                     await gateway_ws.send(data)
             except WebSocketDisconnect:
-                pass
+                logger.info("MQTT WS proxy: client disconnected (c2g)")
             except Exception as e:
-                logger.debug(f"MQTT WS proxy: client read error: {e}")
+                logger.error(f"MQTT WS proxy: client read error: {e}")
 
         async def gateway_to_client():
             """Forward messages from gateway to authenticated client."""
             try:
                 async for message in gateway_ws:
                     await websocket.send_text(message)
-            except websockets.ConnectionClosed:
-                pass
+            except websockets.ConnectionClosed as e:
+                logger.error(f"MQTT WS proxy: gateway closed (g2c): code={e.code} reason={e.reason}")
             except Exception as e:
-                logger.debug(f"MQTT WS proxy: gateway read error: {e}")
+                logger.error(f"MQTT WS proxy: gateway read error: {e}")
 
         # Run both directions concurrently
         tasks = [
