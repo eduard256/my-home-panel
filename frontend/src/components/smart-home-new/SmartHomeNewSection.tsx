@@ -62,7 +62,7 @@ export function SmartHomeNewSection() {
         className="px-6 py-4 border-b border-white/5 flex items-center justify-between"
       >
         <div>
-          <h2 className="text-h2 font-semibold text-white">Smart Home New</h2>
+          <h2 className="text-h2 font-semibold text-white">Smart Home</h2>
           <p className="text-sm text-muted mt-1">Control your devices</p>
         </div>
         <ConnectionStatus status={connectionStatus} onReconnect={reconnect} />
