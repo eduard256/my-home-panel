@@ -17,9 +17,9 @@ export const useNavigationStore = create<NavigationState>((set) => ({
   setCategory: (category: CategoryId) => {
     set(() => ({
       currentCategory: category,
-      // Close Block3 when changing category (except for assistant which always opens AI)
+      // Close Block3 when changing category (except for assistant/ai which always opens AI chat)
       block3State:
-        category === 'assistant'
+        category === 'assistant' || category === 'ai'
           ? {
               isOpen: true,
               type: 'ai-chat',

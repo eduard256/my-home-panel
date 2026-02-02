@@ -18,7 +18,7 @@ export interface AuthState {
 // ============================================
 // Navigation Types
 // ============================================
-export type CategoryId = 'servers' | 'vms' | 'cameras' | 'cameras-new' | 'automations' | 'devices' | 'devices-new' | 'assistant';
+export type CategoryId = 'servers' | 'vms' | 'cameras' | 'cameras-new' | 'automations' | 'devices' | 'devices-new' | 'assistant' | 'ai';
 
 export interface Category {
   id: CategoryId;

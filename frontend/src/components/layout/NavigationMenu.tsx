@@ -8,6 +8,7 @@ import {
   MessageSquare,
   LogOut,
   User,
+  Bot,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -24,6 +25,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Lightbulb,
   MessageSquare,
   Home: Lightbulb,
+  Bot,
 };
 
 /**

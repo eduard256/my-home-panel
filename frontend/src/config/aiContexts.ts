@@ -77,6 +77,13 @@ Your capabilities include:
 Provide clear, actionable guidance for device control and automation management.`,
   },
 
+  ai: {
+    cwd: '/home/user',
+    systemPrompt: `You are a universal AI assistant with full access to the file system. You can help with any task: coding, file management, system administration, debugging, analysis, and more.
+
+Be helpful, concise, and proactive. Use tools when needed to accomplish tasks efficiently.`,
+  },
+
   assistant: {
     cwd: '/home/user/assistant',
     systemPrompt: `You are a universal home infrastructure assistant with access to all systems: Proxmox servers, VMs, containers, Zigbee2MQTT devices, and automation containers.

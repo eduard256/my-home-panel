@@ -19,6 +19,9 @@ import type {
   AIChatStore,
 } from '@/types/ai-chat';
 
+/** Custom working directory for AI tab (overrides aiContexts config) */
+let _aiCustomCwd = '/home/user';
+
 const MAX_MESSAGES_PER_SESSION = 100;
 
 /**
@@ -57,6 +60,7 @@ const initialSessions: Record<CategoryId, ChatSession> = {
   devices: createEmptySession(),
   'devices-new': createEmptySession(),
   assistant: createEmptySession(),
+  ai: createEmptySession(),
 };
 
 /**
@@ -142,11 +146,12 @@ export const useAIChatStore = create<AIChatStore>()(
           _setPlanMode: get()._setPlanMode,
         };
 
-        // Start streaming
+        // Start streaming — use custom cwd for 'ai' category
+        const effectiveCwd = category === 'ai' ? _aiCustomCwd : aiContext.cwd;
         createAIStream(
           content,
           session.session_id,
-          aiContext.cwd,
+          effectiveCwd,
           state.selectedModel,
           aiContext.systemPrompt,
           category,
@@ -482,6 +487,16 @@ export const useAIChatStore = create<AIChatStore>()(
     }
   )
 );
+
+/** Get the current custom cwd for AI tab */
+export function getAICustomCwd(): string {
+  return _aiCustomCwd;
+}
+
+/** Set the custom cwd for AI tab */
+export function setAICustomCwd(cwd: string): void {
+  _aiCustomCwd = cwd;
+}
 
 // Export for backwards compatibility
 export default useAIChatStore;

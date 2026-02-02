@@ -419,7 +419,7 @@ export type AIStreamEvent =
 // Store Types
 // ============================================
 
-export type CategoryId = 'servers' | 'vms' | 'cameras' | 'cameras-new' | 'automations' | 'devices' | 'devices-new' | 'assistant';
+export type CategoryId = 'servers' | 'vms' | 'cameras' | 'cameras-new' | 'automations' | 'devices' | 'devices-new' | 'assistant' | 'ai';
 
 export interface AIChatStore {
   sessions: Record<CategoryId, ChatSession>;

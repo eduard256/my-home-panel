@@ -45,6 +45,13 @@ export const CATEGORIES: Category[] = [
     aiEnabled: true,
     aiOnly: true,
   },
+  {
+    id: 'ai',
+    name: 'AI',
+    icon: 'Bot',
+    order: 7,
+    aiEnabled: true,
+  },
 ];
 
 export const getCategoryById = (id: string): Category | undefined => {
