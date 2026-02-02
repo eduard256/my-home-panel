@@ -1,3 +1,10 @@
+// ===========================================================================
+// DEPRECATED: This file is part of the legacy Smart Home implementation.
+// It is still functional but will be removed once the new WebSocket-based
+// Smart Home system (Smart Home New) is fully implemented.
+// All new development should go into the new system under smart-home-new/.
+// ===========================================================================
+
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { Palette } from '@phosphor-icons/react';
 import { DeviceCard } from '../DeviceCard';
@@ -156,7 +163,7 @@ export function RGBLightCard({
     [onPublish, isOn]
   );
 
-  // Color temperature gradient (warm to cool)
+  // Color temperature gradient: left = warm (2700K), right = cold (6500K)
   const colorTempGradient = 'linear-gradient(to right, #ff9329, #fff5e6, #b3d4ff, #6eb3ff)';
 
   return (
