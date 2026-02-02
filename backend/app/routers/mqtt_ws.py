@@ -59,26 +59,38 @@ async def mqtt_websocket(websocket: WebSocket):
             try:
                 while True:
                     data = await websocket.receive_text()
+                    logger.debug(f"MQTT WS proxy: c2g: {data[:200]}")
                     await gateway_ws.send(data)
             except WebSocketDisconnect:
                 logger.info("MQTT WS proxy: client disconnected (c2g)")
             except Exception as e:
-                logger.error(f"MQTT WS proxy: client read error: {e}")
+                logger.error(f"MQTT WS proxy: client read error: {type(e).__name__}: {e}")
 
         async def gateway_to_client():
             """Forward messages from gateway to authenticated client."""
             try:
                 async for message in gateway_ws:
-                    await websocket.send_text(message)
+                    logger.debug(f"MQTT WS proxy: g2c: {str(message)[:200]}")
+                    await websocket.send_text(message if isinstance(message, str) else message.decode())
             except websockets.ConnectionClosed as e:
                 logger.error(f"MQTT WS proxy: gateway closed (g2c): code={e.code} reason={e.reason}")
             except Exception as e:
-                logger.error(f"MQTT WS proxy: gateway read error: {e}")
+                logger.error(f"MQTT WS proxy: gateway read error: {type(e).__name__}: {e}")
 
-        # Run both directions concurrently
+        async def ping_client():
+            """Send periodic ping to keep client connection alive."""
+            try:
+                while True:
+                    await asyncio.sleep(25)
+                    await websocket.send_text('{"type":"ping"}')
+            except Exception:
+                pass
+
+        # Run both directions + ping concurrently
         tasks = [
             asyncio.create_task(client_to_gateway()),
             asyncio.create_task(gateway_to_client()),
+            asyncio.create_task(ping_client()),
         ]
 
         # Wait for either task to finish (means one side disconnected)

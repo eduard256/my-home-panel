@@ -57,7 +57,10 @@ export class WsServer {
       });
 
       client.on('message', (data) => {
-        this.handleClientMessage(client, data);
+        // Fire-and-forget: don't await to avoid blocking message processing
+        this.handleClientMessage(client, data).catch((err) => {
+          console.error('[WS] Unhandled error in message handler:', err);
+        });
       });
 
       client.on('close', () => {

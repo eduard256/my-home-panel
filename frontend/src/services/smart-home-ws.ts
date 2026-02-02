@@ -212,7 +212,12 @@ class SmartHomeWsManager {
 
   private handleMessage(raw: string): void {
     try {
-      const msg = JSON.parse(raw) as WsServerMessage;
+      const parsed = JSON.parse(raw) as { type: string };
+
+      // Keepalive ping from proxy — watchdog already reset via onmessage
+      if (parsed.type === 'ping') return;
+
+      const msg = parsed as WsServerMessage;
 
       switch (msg.type) {
         case 'init':
@@ -228,6 +233,7 @@ class SmartHomeWsManager {
         case 'publish_result':
           console.log(`[SmartHomeWS] Publish result: ${msg.topic} success=${msg.success}`);
           break;
+
       }
     } catch (err) {
       console.error('[SmartHomeWS] Failed to parse message:', err);

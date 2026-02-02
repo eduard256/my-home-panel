@@ -92,7 +92,14 @@ export class MqttClient {
         ? payload
         : JSON.stringify(payload);
 
+      // Timeout: resolve false after 5s to prevent hanging
+      const timeout = setTimeout(() => {
+        console.error(`[MQTT] Publish timeout on ${topic}`);
+        resolve(false);
+      }, 5000);
+
       this.client.publish(topic, message, { qos: 1 }, (err) => {
+        clearTimeout(timeout);
         if (err) {
           console.error(`[MQTT] Publish error on ${topic}:`, err.message);
           resolve(false);
